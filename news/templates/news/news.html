@@ -1,0 +1,149 @@
+{% extends "events/wrapper.html" %}
+
+{% block title %}Новости{% endblock %}
+
+{% block action-search %}{% url 'news:index' %}{% endblock %}
+
+{% load paging %}
+
+{% block content %}
+    <!-- PageBanner -->
+    <div class="container-fluid page-banner blog no-padding">
+        <div class="section-padding"></div>
+        <div class="container">
+            <div class="banner-content-block">
+                <div class="banner-content">
+                    <h3>Новости</h3>
+                    <ol class="breadcrumb">
+                        <li><a href="{% url 'events:index' %}">Главная</a></li>
+                        <li class="active">Новости</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        <div class="section-padding"></div>
+    </div><!-- PageBanner /- -->
+
+    <!-- Blog News -->
+    <div class="container-fluid eventlist blog upcoming-event latest-blog no-padding">
+        <div class="section-padding"></div>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-9 col-sm-6 col-xs-6 content-area">
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12 col-xs-6 blog-box">
+                        {% for article in news %}
+                            <div class="row">
+                                <article class="type-post">
+                                    <div class="entry-cover">
+                                        <a href="{% url 'news:show' article.alias %}"><img src="/media/{{ article.small_photo }}" alt="blog" width="297" height="298"/></a>
+                                    </div>
+                                    <div class="entry-block">
+                                        <div class="entry-meta">
+                                            <div class="post-date">
+                                                <a href="#" title=""><i class="fa fa-calendar" aria-hidden="true"></i><span>{{ article.created_at|date:"d M, Y" }} </span></a>
+                                            </div>
+                                        </div>
+                                        <div class="entry-title">
+                                            <a href="{% url 'news:show' article.alias %}" title="{{ article.title }}"><h3>{{ article.title }}</h3></a>
+                                        </div>
+                                        <div class="entry-content">
+                                            <p>
+                                                <i class="icon icon-Tag"></i>
+                                                {% for category in article.category.all %}
+                                                    {{ category }}
+                                                    {% if not forloop.last %}, {% endif %}
+                                                {% endfor %}
+                                            </p>
+                                            {{ article.article| safe | truncatechars:100 }}
+                                        </div>
+                                        <a href="{% url 'news:show' article.alias %}" class="learn-more" title="Подробнее">Подробнее</a>
+                                    </div>
+                                </article>
+                            </div>
+                        {% empty %}
+                            Пусто
+                        {% endfor %}
+                        </div>
+                    </div>
+                    <!-- Pagination -->
+                    {% if news.paginator.num_pages > 1 %}
+                    <div class="ow-pagination">
+                        <nav>
+                            <ul class="pager">
+                                <li class="page-prv {% if not news.has_previous %}disabled{% endif %}"><a href="{% if news.has_previous %}?{% url_replace request 'page' news.previous_page_number %}{% else %}#{% endif %}" title="Предыдущая"><i class="fa fa-long-arrow-left" aria-hidden="true"></i>Предыдущая</a></li>
+                                {% for item in paginationList %}
+                                    <li class="num {% if item == news.number %}active{% endif %}">
+                                        <a href="?{% url_replace request 'page' item %}">{{ item }}</a>
+                                    </li>
+                                {% endfor %}
+                                <li class="page-next {% if not news.has_next %}disabled{% endif %}"><a href="{% if news.has_next %}?{% url_replace request 'page' news.next_page_number %}{% else %}#{% endif %}" title="Следующая">Следующая<i class="fa fa-long-arrow-right" aria-hidden="true"></i></a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-3 col-sm-6 col-xs-6 widget-area">
+                    <aside class="widget widget_find_event">
+                        <div class="widget-title">
+                            <span class="icon icon-Podium"></span>
+                            <h3>Фильтрация</h3>
+                        </div>
+                        <div class="find-event_top-block">
+                            <form id="filters" method="get" action="{% url 'news:index' %}">
+                                <div class="event-select-option">
+                                    <select class="selectpicker" name="categories" data-live-search="true">
+                                        <option data-icon="icon-Tag" value="0">Категория</option>
+                                        {% for category in categories %}
+                                            <option data-icon="icon-Tag" value="{{ category.alias }}" {% if category.alias == request.GET.categories %}selected{% endif %}>{{ category }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                {% if subcategories %}
+                                <div class="event-select-option">
+                                    <select class="selectpicker" name="subcategories" data-live-search="true">
+                                        <option data-icon="icon-Tag" value="0">Подкатегория</option>
+                                        {% for category in subcategories %}
+                                            <option data-icon="icon-Tag" value="{{ category.alias }}" {% if category.alias == request.GET.subcategories %}selected{% endif %}>{{ category }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                {% endif %}
+                                {% if subsubcategories %}
+                                <div class="event-select-option">
+                                    <select class="selectpicker" name="subsubcategories" data-live-search="true">
+                                        <option data-icon="icon-Tag" value="0">Подкатегория</option>
+                                        {% for category in subsubcategories %}
+                                            <option data-icon="icon-Tag" value="{{ category.alias }}" {% if category.alias == request.GET.subsubcategories %}selected{% endif %}>{{ category }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                {% endif %}
+                                <button title="Найти" type="submit">Найти</button>
+                            </form>
+                        </div>
+                    </aside>
+
+                    {% if new_news %}
+                        <aside class="widget widget_recent">
+                            <div class="widget-title">
+                                <span class="icon icon-Notes"></span>
+                                <h3>Новые новости</h3>
+                            </div>
+                            <div class="recent-block">
+                                {% for news in new_news %}
+                                    <div class="recent-content">
+                                        <a href="{% url 'news:show' news.alias %}"><img src="/media/{{ news.small_photo }}" width="72" height="72"/></a>
+                                        <h3><a href="{% url 'news:show' news.alias %}">{{ news.title }}</a></h3>
+                                        <a href="{% url 'news:show' news.alias %}">{{ news.created_at|date:"d.m.Y"}}</a>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </aside>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="section-padding"></div>
+    </div><!-- Latest News /- -->
+{% endblock %}
