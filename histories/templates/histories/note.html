@@ -1,0 +1,165 @@
+{% extends "events/wrapper.html" %}
+
+{% block title %}{{ article.title }}{% endblock %}
+
+{% block meta_title %}{{ article.meta_title }}{% endblock %}
+{% block meta_keywords %}{{ article.meta_keywords }}{% endblock %}
+{% block meta_description %}{{ article.meta_description }}{% endblock %}
+
+{% block action-search %}{% url 'histories:index' %}{% endblock %}
+
+{% block content %}
+    <!-- PageBanner -->
+    <div class="container-fluid page-banner blogpost no-padding">
+        <div class="section-padding"></div>
+        <div class="container">
+            <div class="banner-content-block">
+                <div class="banner-content">
+                    <h3>{{ article.title }}</h3>
+                    <ol class="breadcrumb">
+                        <li><a href="{% url 'events:index' %}">Главная</a></li>
+                        <li><a href="{% url 'histories:index' %}">Истории</a></li>
+                        <li class="active">История</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        <div class="section-padding"></div>
+    </div><!-- PageBanner /- -->
+
+    <!-- Blog News -->
+    <div class="container-fluid eventlist blog blogpost upcoming-event latest-blog no-padding">
+        <div class="section-padding"></div>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-9 col-sm-6 content-area">
+                    <article class="type-post">
+                        <div class="entry-cover">
+                            {% if article.main_photo %}
+                            <img src="/media/{{ article.main_photo }}" alt="blog-post" width="810" height="376"/>
+                            {% endif %}
+                        </div>
+                        <div class="entry-block">
+                            <div class="entry-meta">
+                                <div class="post-date">
+                                    <i class="fa fa-calendar" aria-hidden="true"></i><span>{{ article.created_at|date:"d M Y" }}</span>
+                                </div>
+                                <div class="post-tag">
+                                    <i class="fa fa-tag" aria-hidden="true"></i>
+                                    {% for category in article.category.all %}
+                                        {{ category }}
+                                        {% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="entry-title">
+                                <h3>{{ article.title }}</h3>
+                            </div>
+                            <div class="entry-content">
+                                {{ article.article|safe }}
+                            </div>
+                        </div>
+                    </article>
+                </div>
+                <div class="col-md-3 col-sm-6 widget-area">
+                    {% if user.is_authenticated %}
+                        {% if perms.history.delete_history or perms.history.change_history %}
+                        <aside class="widget widget_find_event">
+                            <div class="widget-title">
+                                <span class="icon icon-Settings"></span>
+                                <h3>Действия</h3>
+                            </div>
+                            <div class="find-event_top-block">
+                                {% if perms.history.change_history %}<a href="{% url 'admin:histories_history_change' article.id %}" class="btn">Редактировать</a>{% endif %}
+                                {% if perms.history.delete_history %}<a href="{% url 'admin:histories_history_delete' article.id %}" class="btn delete-button-article" onclick="if(!confirm('Вы действительно хотите удалить статью?')){return false;}">Удалить</a>{% endif %}
+                            </div>
+                        </aside>
+                        {% endif %}
+                    {% endif %}
+
+                    <aside class="widget widget_find_event">
+                        <div class="widget-title">
+                            <span class="icon icon-Podium"></span>
+                            <h3>Фильтрация</h3>
+                        </div>
+                        <div class="find-event_top-block">
+                            <form id="filters" method="get" action="{% url 'histories:index' %}">
+                                <div class="event-select-option">
+                                    <select class="selectpicker" name="categories" data-live-search="true">
+                                        <option data-icon="icon-Tag" value="0">Категория</option>
+                                        {% for category in categories %}
+                                            <option data-icon="icon-Tag" value="{{ category.alias }}" {% if category.alias == request.GET.categories %}selected{% endif %}>{{ category }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <button title="Найти" type="submit">Найти</button>
+                            </form>
+                        </div>
+                    </aside>
+
+                    {% if new_histories %}
+                        <aside class="widget widget_recent">
+                            <div class="widget-title">
+                                <span class="icon icon-Notes"></span>
+                                <h3>Новые новости</h3>
+                            </div>
+                            <div class="recent-block">
+                                {% for history in new_histories %}
+                                    <div class="recent-content">
+                                        <a href="{% url 'histories:show' history.alias %}"><img src="/media/{{ history.main_photo }}" width="72" height="72"/></a>
+                                        <h3><a href="{% url 'histories:show' history.alias %}">{{ history.title }}</a></h3>
+                                        <a href="{% url 'histories:show' history.alias %}">{{ history.created_at|date:"d.m.Y"}}</a>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </aside>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="section-padding"></div>
+    </div><!-- Latest News /- -->
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        $('a.reply-comment').click(function (e) {
+            $('#parent-id-comment').val($(this).attr('data-id'));
+            $('#comment-form').find('input[name=submit-comment]').after(
+                '<a href="#" class="delete-comment-form">Отмена</a>'
+            );
+            $('#comment-form').appendTo($(this).parent().parent());
+            e.preventDefault();
+        });
+
+        $('a.edit-comment').click(function (e) {
+            $('#parent-id-comment').val($(this).attr('data-id'));
+            $('#comment-form').prop('action', 'http://freet-new.loc/comment/'+$(this).attr('data-id'));
+            $('#comment-form').append('<input type="hidden" name="_method" value="put">');
+            $('.delete-comment-form').remove();
+            $('#comment-form').find('input[name=submit-comment]').after(
+                '<a href="#" class="delete-comment-form">Отмена</a>'
+            );
+            $('textarea[name=comment]').val($(this).parent().parent().find('p').html());
+            $('#comment-form').appendTo($(this).parent().parent());
+            e.preventDefault();
+        });
+
+        $('a.del-comment').click(function (e) {
+            if (!confirm("Вы действительно хотите удалить комментарий?")){
+                e.preventDefault();
+            }else{
+                $(this).parent().submit();
+            }
+        });
+
+        $('body').on('click', '.delete-comment-form', function (e) {
+            $('#comment-form').appendTo($('#comment-form-block'));
+            $('#parent-id-comment').val('0');
+            $('#comment-form').find('input[name=_method]').remove();
+            $('#comment-form').prop('action', 'http://freet-new.loc/comment');
+            $(this).remove();
+            e.preventDefault();
+        });
+    </script>
+{% endblock %}
