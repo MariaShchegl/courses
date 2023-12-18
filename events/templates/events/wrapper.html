@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]> <html class="ie6"> <![endif]-->
+<!--[if IE 7 ]>    <html class="ie7"> <![endif]-->
+<!--[if IE 8 ]>    <html class="ie8"> <![endif]-->
+<!--[if IE 9 ]>    <html class="ie9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--><html lang="ru" class=""><!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="title" content="{% block meta_titles %}{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}{% endblock %}">
+    <meta name="description" content="{% block meta_description %}{% endblock %}">
+    <meta name="author" content="Raphael">
+
+
+    <title>{% block title %}{% endblock %} - FreeT</title>
+    {% load static %}
+
+    <!-- Standard Favicon -->
+    <link rel="icon" type="image/x-icon" href="{% static 'events/images/favicon.ico' %}" />
+
+    <!-- For iPhone 4 Retina display: -->
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="{% static 'events/images/apple-icon-114x114.png' %}">
+
+    <!-- For iPad: -->
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="{% static 'events/images/apple-icon-72x72.png' %}">
+
+    <!-- For iPhone: -->
+    <link rel="apple-touch-icon-precomposed" href="{% static 'events/images/apple-icon-57x57.png' %}">
+
+    <!-- Library - Bootstrap v3.3.5 -->
+    <link rel="stylesheet" type="text/css" href="{% static 'events/libraries/lib.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'events/libraries/Stroke-Gap-Icon/stroke-gap-icon.css' %}">
+
+    <!-- Custom - Common CSS -->
+    <link rel="stylesheet" type="text/css" href="{% static 'events/css/plugins.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'events/css/navigation-menu.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'events/libraries/lightslider-master/lightslider.css' %}">
+
+    <!-- Custom - Theme CSS -->
+    <link rel="stylesheet" type="text/css" href="{% static 'events/css/style.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'events/css/shortcode.css' %}">
+    <!--[if lt IE 9]>
+    <script src="{% static 'events/js/html5/respond.min.js' %}"></script>
+    <![endif]-->
+    {% block head %}
+
+    {% endblock %}
+</head>
+
+<body data-offset="200" data-spy="scroll" data-target=".ow-navigation">
+<!-- Loader -->
+<div id="site-loader" class="load-complete">
+    <div class="loader">
+        <div class="loader-inner ball-clip-rotate">
+            <div></div>
+        </div>
+    </div>
+</div><!-- Loader /- -->
+
+<!-- Header -->
+<header class="header-main container-fluid no-padding">
+    <!-- Top Header -->
+    <div class="top-header container-fluid no-padding">
+        <!-- Container -->
+        <div class="container">
+            <div class="row">
+                <!-- Social -->
+                <div class="col-md-4 col-sm-4 col-xs-6 social">
+                    <ul>
+                        <li><a title="Facebook" href="#"><i class="fa fa-facebook"></i></a></li>
+                        <li><a title="Twitter" href="#"><i class="fa fa-twitter"></i></a></li>
+                        <li><a title="Google Plus" href="#"><i class="fa fa-google-plus"></i></a></li>
+                    </ul>
+                </div><!-- Social /- -->
+
+                {% if not user.is_authenticated %}
+                    <!-- Register and login -->
+                    <div class="col-md-4 col-sm-4 col-xs-6 register">
+                        <a class="{% if request.resolver_match.url_name == 'register' %}active{% endif %}" href="{% url 'account:register' %}" title="Регистрация">Регистрация</a>
+                        <a class="{% if request.resolver_match.url_name == 'login' %}active{% endif %}" href="{% url 'account:login' %}" title="Вход">Вход</a>
+                    </div><!-- Register and login /- -->
+                {% else %}
+                    <!-- Logout and account -->
+                    <div class="col-md-4 col-sm-4 col-xs-6 register">
+                        <a class="{% if request.resolver_match.url_name == 'index' and 'account' in request.resolver_match.namespaces %}active{% endif %}" href="{% url 'account:index' %}" title="Кабинет">Кабинет</a>
+                        <a href="{% url 'account:logout' %}"  title="Выход">Выход</a>
+                    </div><!-- Logout and account /- -->
+                {% endif %}
+
+                <!-- Logo Block -->
+                <div class="col-md-4 col-sm-4 col-xs-12 logo-block">
+                    <a href="{% url 'events:index' %}" title="Logo">
+                        <img src="{% static 'events/images/logo.png' %}" alt="logo" width="80" height="34"/>
+                        <h3>FreeT</h3>
+                    </a>
+                </div><!-- Logo Block /- -->
+            </div>
+        </div><!-- Container /- -->
+    </div><!-- Top Header /- -->
+
+    <!-- Menu Block -->
+    <div class="menu-block container-fluid no-padding">
+        <!-- Container -->
+        <div class="container">
+            <!-- User -->
+            {% if user.is_authenticated %}
+            <a href="{% url 'account:index' %}" class="user" title="Личный кабинет {{ user.username }}">
+                <i class="fa fa-user"></i>
+            </a><!-- User /- -->
+            {% endif %}
+            <!-- Expanding Search -->
+            <div class="menu-search">
+                <div id="sb-search" class="sb-search">
+                    <form action="{% block action-search %}{% endblock %}">
+                        <input class="sb-search-input" placeholder="Введите поисковый запрос..." type="text" value="" name="search" id="search" />
+                        <button class="sb-search-submit"><i class="fa fa-search"></i></button>
+                        <span class="sb-icon-search"></span>
+                    </form>
+                </div>
+            </div><!-- Expanding Search /- -->
+            <div class="col-md-10 col-sm-12">
+                <!-- Navigation -->
+                <nav class="navbar ow-navigation">
+                    <div class="navbar-header">
+                        <button aria-controls="navbar" aria-expanded="false" data-target="#navbar" data-toggle="collapse" class="navbar-toggle collapsed" type="button">
+                            <span class="sr-only">Навигация</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a title="Logo" href="{% url 'events:index' %}" class="navbar-brand"><img src="{% static 'events/images/logo.png' %}" alt="logo"/><span>FreeT</span></a>
+                    </div>
+                    <div class="navbar-collapse collapse" id="navbar">
+                        <ul class="nav navbar-nav menubar">
+                            <li class="{% if request.resolver_match.url_name == 'index' and 'events' in request.resolver_match.namespaces %}active{% endif %}"><a title="Главная" href="{% url 'events:index' %}">Главная</a></li>
+                            <li class="{% if request.resolver_match.url_name == 'index_event' and 'events' in request.resolver_match.namespaces %}active{% endif %}"><a title="Мероприятия" href="{% url 'events:index_event' %}">Мероприятия</a></li>
+                            <li class="{% if request.resolver_match.url_name == 'index' and 'news' in request.resolver_match.namespaces %}active{% endif %}"><a title="Новости" href="{% url 'news:index' %}">Новости</a></li>
+                            <li class="{% if request.resolver_match.url_name == 'index' and 'histories' in request.resolver_match.namespaces %}active{% endif %}"><a title="История" href="{% url 'histories:index' %}">История</a></li>
+                        </ul>
+                    </div>
+                </nav><!-- Navigation /- -->
+            </div>
+        </div><!-- Container /- -->
+    </div><!-- Menu Block /- -->
+</header><!-- Header /- -->
+
+{% block content %}
+
+{% endblock %}
+
+<!-- Footer Main -->
+<footer class="footer-main container-fluid no-padding">
+    <!-- Container -->
+    <div class="container">
+        <!-- Footer About -->
+        <div class="footer-about">
+            <div class="logo-block">
+                <img src="{% static 'events/images/logo-transp.png' %}" alt="logo" width="80" height="34"/>
+                <h3>FreeT</h3>
+            </div>
+            <div class="footer-about-content">
+                <h3 class="block-title">Что такое FreeT</h3>
+                <p>Это площадка для размещения объявлений на кружки, секции, мероприятия для удобного поиска.</p>
+            </div>
+        </div><!-- Footer About /- -->
+
+        <div class="row">
+            <!-- Customer Service Widget -->
+            <aside class="col-md-3 col-sm-6 col-xs-6 widget widget_customer_services">
+                <h3 class="block-title">Услуги</h3>
+                <ul>
+                    <li><a title="Новости" href="{% url 'news:index' %}">Новости</a></li>
+                </ul>
+            </aside><!-- Customer Service Widget /- -->
+
+            <!-- Quick Links Widget -->
+            <aside class="col-md-2 col-sm-6 col-xs-6 widget widget_quick_links">
+                <h3 class="block-title">Быстрые ссылки</h3>
+                <ul>
+                    <li><a title="Мероприятия" href="{% url 'events:index_event' %}">Мероприятия</a></li>
+                </ul>
+            </aside><!-- Quick Links Widget /- -->
+
+            <!-- ContactUs Widget -->
+            <aside class="col-md-3 col-sm-6 col-xs-6 widget widget_contactus">
+                <h3 class="block-title">Обратная связь</h3>
+                <div class="contactinfo-box">
+                    <i class="fa fa-phone"></i>
+                    <p>
+                        <a title="375295355084" href="tel:+375295355084">+375 29 535 50 84</a>
+                    </p>
+                </div>
+                <div class="contactinfo-box">
+                    <i class="fa fa-envelope"></i>
+                    <p>
+                        <a href="mailto:mar.code.shchegl@gmail.com" title="mar.code.shchegl@gmail.com"> mar.code.shchegl@gmail.com</a>
+                    </p>
+                </div>
+            </aside><!-- ContactUs Widget /- -->
+
+            <!-- NewsLetter Widget -->
+            <aside class="col-md-4 col-sm-6 col-xs-6 widget widget_newsletter">
+                <h3 class="block-title">Новости</h3>
+                <p>У нас есть мечта, и мы просто знаем, что сейчас мы воплотим ее в жизнь.</p>
+                <form method="get" action="{% url 'events:index' %}">
+                    <div class="input-group">
+                        <input type="text" placeholder="Поиск" name="search" class="form-control">
+                        <span class="input-group-btn">
+                                <button type="submit" title="Поиск" class="btn">Найти</button>
+                        </span>
+                    </div>
+                </form>
+                <ul>
+                    <li><a title="Facebook" data-toggle="tooltip" href="#"><i class="fa fa-facebook"></i></a></li>
+                    <li><a title="Twitter" data-toggle="tooltip" href="#"><i class="fa fa-twitter"></i></a></li>
+                    <li><a title="Google Plus" data-toggle="tooltip" href="#"><i class="fa fa-google-plus"></i></a></li>
+                </ul>
+            </aside><!-- NewsLetter Widget /- -->
+        </div>
+    </div><!-- Container /- -->
+
+    <!-- Container -->
+    <div class="container">
+        <div class="footer-menu">
+            <!-- Copyrights -->
+            <div class="copyrights ow-pull-left">
+                <p>&copy; 2023 | Все права защищены</p>
+            </div><!-- Copyrights /- -->
+            <!-- Navigation -->
+            <nav class="navbar ow-navigation ow-pull-right">
+                <div class="navbar-header">
+                    <button aria-controls="navbar" aria-expanded="false" data-target="#navbar2" data-toggle="collapse" class="navbar-toggle collapsed" type="button">
+                        <span class="sr-only">Навигация</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                </div>
+                <div class="navbar-collapse collapse" id="navbar2">
+                    <ul class="nav navbar-nav">
+                        <li><a title="Главная" href="{% url 'events:index' %}">Главная</a></li>
+                        <li><a title="Мероприятия" href="{% url 'events:index_event' %}">Мероприятия</a></li>
+                        <li><a title="Новости" href="{% url 'news:index' %}">Новости</a></li>
+                        <li><a title="История" href="{% url 'histories:index' %}">История</a></li>
+                    </ul>
+                </div>
+            </nav><!-- Navigation /- -->
+        </div><!-- Footer Menu /- -->
+    </div><!-- Container /- -->
+</footer><!-- Footer Main /- -->
+
+<!-- JQuery v1.11.3 -->
+<script src="{% static 'events/js/jquery.min.js' %}"></script>
+
+<!-- Library - Js -->
+<script src="{% static 'events/libraries/lib.js' %}"></script><!-- Bootstrap JS File v3.3.5 -->
+<script src="{% static 'events/libraries/jquery.countdown.min.js' %}"></script>
+
+<script src="{% static 'events/libraries/lightslider-master/lightslider.js' %}"></script>
+<!-- Library - Google Map API -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDsd3AP-bUy6R00-f0Uhjb9qt6fN2v1Ty0&callback=initMap" defer></script>
+<script src="{% static 'events/js/functions.js' %}"></script>
+
+{% block scripts %}
+
+{% endblock %}
+
+<script>
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          // Does this cookie string begin with the name we want?
+          if (cookie.substring(0, name.length + 1) === (name + "=")) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    $('select[name=categories]').change(function (e) {
+        $('select[name=subcategories]').parent().parent().remove();
+        $('select[name=subsubcategories]').parent().parent().remove();
+        var thisLocal = this;
+        $.ajax({
+            type: "POST",
+            headers: {
+                "X-Requested-with": "XMLHttpRequest",
+                "X-CSRFToken": getCookie("csrftoken"),
+            },
+            url: "/load_data",
+            dataType: "json",
+            data: "type=category&alias=" + $("select[name=categories] option:selected").attr('value'),
+            processData: false,
+            success: function(msg) {
+                if (msg.length != 0)
+                {
+                    var str = "";
+                    for (var i = 0; i < msg.length; i++){
+                        str += '<option data-icon="icon-WorldWide" value="' + msg[i]['fields']['alias'] + '">' + msg[i]['fields']['category'] + '</option>';
+                    }
+                    $(thisLocal).parent().parent().after('<div class="event-select-option">' +
+                        '<select class="selectpicker" name="subcategories" data-live-search="true">' +
+                        '<option data-icon="icon-WorldWide" value="0">Подкатегория</option>' +
+                        str +
+                        '</select>' +
+                        '</div>');
+                    $('select').selectpicker();
+                }
+            }
+        });
+    });
+
+    $('#filters').on('change', 'select[name=subcategories]' , function (e) {
+        $('select[name=subsubcategories]').parent().parent().remove();
+        var thisLocal = this;
+        $.ajax({
+            type: "POST",
+            headers: {
+                "X-Requested-with": "XMLHttpRequest",
+                "X-CSRFToken": getCookie("csrftoken"),
+            },
+            url: "/load_data",
+            dataType: "json",
+            data: "type=category&alias=" + $("select[name=subcategories] option:selected").attr('value'),
+            processData: false,
+            success: function(msg) {
+                console.log(msg.length)
+                if (msg.length != 0)
+                {
+                    var str = "";
+                    for (var i = 0; i < msg.length; i++){
+                        str += '<option data-icon="icon-WorldWide" value="' + msg[i]['fields']['alias'] + '">' + msg[i]['fields']['category'] + '</option>';
+                    }
+                    $(thisLocal).parent().parent().after('<div class="event-select-option">' +
+                        '<select class="selectpicker" name="subsubcategories" data-live-search="true">' +
+                        '<option data-icon="icon-WorldWide" value="0">Подкатегория</option>' +
+                        str +
+                        '</select>' +
+                        '</div>');
+                    $('select').selectpicker();
+                }
+            }
+        });
+    });
+
+    $('select[name=areas]').change(function (e) {
+        $('select[name=cities]').parent().parent().remove();
+        $('select[name=districts]').parent().parent().remove();
+        var thisLocal = this;
+        $.ajax({
+            type: "POST",
+            headers: {
+                "X-Requested-with": "XMLHttpRequest",
+                "X-CSRFToken": getCookie("csrftoken"),
+            },
+            url: "/load_data",
+            dataType: "json",
+            data: "type=areas&id=" + $("select[name=areas] option:selected").attr('value'),
+            processData: false,
+            success: function(msg) {
+                if (msg['cities'].length != 0)
+                {
+                    var str = "";
+                    for (var i = 0; i < msg['cities'].length; i++){
+                        for (var j = 0; j < msg['type'].length; j++)
+                            if (msg['cities'][i]['fields']['type_city'] == msg['type'][j]['pk']) {
+                                str += '<option data-icon="icon-WorldWide" value="' + msg['cities'][i]['pk'] + '">' + msg['type'][j]['fields']['abbreviation'] + ' ' + msg['cities'][i]['fields']['city'] + '</option>';
+                                break
+                            }
+                    }
+                    $(thisLocal).parent().parent().after('<div class="event-select-option">' +
+                        '<select class="selectpicker" name="cities" data-live-search="true">' +
+                        '<option data-icon="icon-WorldWide" value="0">Город</option>' +
+                        str +
+                        '</select>' +
+                        '</div>');
+                    $('select').selectpicker();
+                }
+            }
+        });
+    });
+
+    $('#filters').on('change', 'select[name=cities]' , function (e) {
+        $('select[name=districts]').parent().parent().remove();
+        var thisLocal = this;
+        $.ajax({
+            type: "POST",
+            headers: {
+                "X-Requested-with": "XMLHttpRequest",
+                "X-CSRFToken": getCookie("csrftoken"),
+            },
+            url: "/load_data",
+            dataType: "json",
+            data: "type=cities&id=" + $("select[name=cities] option:selected").attr('value'),
+            processData: false,
+            success: function(msg) {
+                if (msg.length != 0)
+                {
+                    var str = "";
+                    for (var i = 0; i < msg.length; i++){
+                        str += '<option data-icon="icon-WorldWide" value="' + msg[i]['pk'] + '">' + msg[i]['fields']['district'] + '</option>';
+                    }
+                    $(thisLocal).parent().parent().after('<div class="event-select-option">' +
+                        '<select class="selectpicker" name="districts" data-live-search="true">' +
+                        '<option data-icon="icon-WorldWide" value="0">Район</option>' +
+                        str +
+                        '</select>' +
+                        '</div>');
+                    $('select').selectpicker();
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>

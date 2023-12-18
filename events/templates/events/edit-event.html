@@ -1,0 +1,591 @@
+{% extends "events/wrapper.html" %}
+
+{% block title %}{% if not article %}Добавление мероприятия{% else %}Редактирование мероприятия{% endif %}{% endblock %}
+
+{% block action-search %}{% url 'events:index' %}{% endblock %}
+
+{% load static %}
+
+{% load startswith %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+
+                {% if messages %}
+                    {% for message in messages %}
+                    <div>{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+
+                <div class="booking-form-block">
+                    <h3>{% if not article %}Добавление мероприятия{% else %}Редактирование мероприятия{% endif %}</h3>
+                    <form id="mainform" class="form-horizontal" onsubmit="return false" enctype="multipart/form-data" method="POST" action="{% if article %}{% url 'events:edit_event' article.alias %}{% else %}{% url 'events:add_event' 'event' %}{% endif %}">
+                        {% csrf_token %}
+
+                        <div class="form-group {% if form.errors.title %}has-error{% endif %}">
+                            <label for="{{ form.title.id_for_label }}" class="col-md-4 control-label">Название мероприятия*</label>
+
+                            <div class="col-md-8">
+                                {{ form.title }}
+
+                                {% if form.errors.title %}
+                                    <span class="help-block">
+                                    <strong>{{ form.errors.title }}</strong>
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group {% if form.errors.description %}has-error{% endif %}">
+                            <label for="{{ form.description.id_for_label }}" class="col-md-4 control-label">Описание объявления*</label>
+
+                            <div class="col-md-8">
+                                {{ form.description }}
+
+                                {% if form.errors.description %}
+                                    <span class="help-block">
+                                    <strong>{{ form.errors.description }}</strong>
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group {% if form.errors.main_photo %}has-error{% endif %}">
+                            <label for="{{ form.main_photo.id_for_label }}" class="col-md-4 control-label">Изображение карточки объявления</label>
+
+                            <div class="col-md-8">
+                                {{ form.main_photo }}
+
+                                {% if form.errors.main_photo %}
+                                    <span class="help-block">
+                                    <strong>{{ form.errors.main_photo }}</strong>
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group social-add">
+                            <label class="col-md-4 control-label">Соц сети</label>
+                            <div class="col-md-8">
+                                <select class="selectpicker" name="socials_type[]" data-live-search="true">
+                                    <option data-icon="icon-WorldWide" value="facebook">Facebook</option>
+                                    <option data-icon="icon-WorldWide" value="vk">VK</option>
+                                    <option data-icon="icon-WorldWide" value="instagram">Instagram</option>
+                                    <option data-icon="icon-WorldWide" value="twitter">Twitter</option>
+                                    <option data-icon="icon-WorldWide" value="youtube">YouTube</option>
+                                    <option data-icon="icon-WorldWide" value="odnoklassniki">Одноклассники</option>
+                                </select>
+                                <input type="text" name="socials_val[]" class="form-control mt-2" placeholder="Ссылка (www.example.com/...)">
+                            </div>
+                        </div>
+                        {% if article and article.value %}
+                            {% for ind, soc_links in article.value.items %}
+                                {% if ind == 'social_links' %}
+                                    {% for value_soc in soc_links %}
+                                        {% for key, val in value_soc.items %}
+                                            <div class="form-group social-add">
+                                                <label class="col-md-4 control-label">Соц сети</label>
+                                                <div class="col-md-8 text-left">
+                                                    <select class="selectpicker" name="socials_type" data-live-search="true">
+                                                        <option data-icon="icon-WorldWide" value="facebook" {% if key == "facebook" %}selected{% endif %}>Facebook</option>
+                                                        <option data-icon="icon-WorldWide" value="vk" {% if key == "vk" %}selected{% endif %}>VK</option>
+                                                        <option data-icon="icon-WorldWide" value="instagram" {% if key == "instagram" %}selected{% endif %}>Instagram</option>
+                                                        <option data-icon="icon-WorldWide" value="twitter" {% if key == "twitter" %}selected{% endif %}>Twitter</option>
+                                                        <option data-icon="icon-WorldWide" value="youtube" {% if key == "youtube" %}selected{% endif %}>YouTube</option>
+                                                        <option data-icon="icon-WorldWide" value="odnoklassniki" {% if key == "odnoklassniki" %}selected{% endif %}>Одноклассники</option>
+                                                    </select>
+                                                    <input type="text" name="socials_val" class="form-control my-2" placeholder="Ссылка (www.example.com/...)" value="{{ val }}">
+                                                    <a href="#" class="delete-selectpicker-soc">Удалить</a>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    {% endfor %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                        <div class="form-group">
+                            <div class="col-md-8 col-md-offset-4 text-left">
+                                <a href="#" class="add-social-link">Добавить ссылку на соц сеть</a>
+                            </div>
+                        </div>
+
+                        <div class="form-group {% if form.errors.contacts %}has-error{% endif %}">
+                            <label for="{{ form.contacts.id_for_label }}" class="col-md-4 control-label">Контакты*</label>
+
+                            <div class="col-md-8">
+                                {{ form.contacts }}
+
+                                {% if form.errors.contacts %}
+                                    <span class="help-block">
+                                    <strong>{{ form.errors.contacts }}</strong>
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group {% if form.errors.start_event %}has-error{% endif %}">
+                            <label for="start_event" class="col-md-4 control-label">Дата начала</label>
+
+                            <div class="col-md-8">
+                                {{ form.start_event }}
+
+                                {% if form.errors.start_event %}
+                                <span class="help-block">
+                                    <strong>{{ form.errors.start_event }}</strong>
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group {% if form.errors.meta_title %}has-error{% endif %}">
+                            <label for="{{ form.meta_title.id_for_label }}" class="col-md-4 control-label">Мета заголовок</label>
+
+                            <div class="col-md-8">
+                                {{ form.meta_title }}
+
+                                {% if form.errors.meta_title %}
+                                    <span class="help-block">
+                                    <strong>{{ form.errors.meta_title }}</strong>
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group {% if form.errors.meta_keywords %}has-error{% endif %}">
+                            <label for="{{ form.meta_keywords.id_for_label }}" class="col-md-4 control-label">Мета ключевые слова</label>
+
+                            <div class="col-md-8">
+                                {{ form.meta_keywords }}
+
+                                {% if form.errors.meta_keywords %}
+                                    <span class="help-block">
+                                    <strong>{{ form.errors.meta_keywords }}</strong>
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group {% if form.errors.meta_description %}has-error{% endif %}">
+                            <label for="{{ form.meta_description.id_for_label }}" class="col-md-4 control-label">Мета описание</label>
+
+                            <div class="col-md-8">
+                                {{ form.meta_description }}
+
+                                {% if form.errors.meta_description %}
+                                    <span class="help-block">
+                                    <strong>{{ form.errors.meta_description }}</strong>
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-md-4 control-label">Возраст</label>
+                            <div class="col-md-8">
+                                {{ form.age }}
+                            </div>
+                        </div>
+
+                        {% if form.errors.age %}
+                            <span class="help-block">
+                                <strong>{{ form.errors.age }}</strong>
+                            </span>
+                        {% endif %}
+
+                        <div class="form-group cat-add">
+                            <label class="col-md-4 control-label">Категории</label>
+                            <div class="col-md-8">
+                                {{ form.categories }}
+                            </div>
+                        </div>
+
+                        {% if form.errors.categories %}
+                            <span class="help-block">
+                                <strong>{{ form.errors.categories }}</strong>
+                            </span>
+                        {% endif %}
+
+                        <div class="form-group">
+                            <label class="col-md-4 control-label">Цена (Бесплтные?)</label>
+                            <div class="col-md-8 text-left">
+                                <label><input type="radio" name="free" value="yes" {% if article and article.price == "Бесплатно" %}checked{% endif %}>Да</label>
+                                <label><input type="radio" name="free" value="no" {% if article and article.price != "Бесплатно" %}checked{% endif %} {% if not article %}checked{% endif %}>Нет</label>
+                                <input type="number" class="form-control" name="price" min="1" placeholder="От ... рублей" value="{% if article and article.price != "Бесплатно" %}{{ article.price }}{% endif %}" {% if article and article.price == "Бесплатно" %}disabled="disabled"{% endif %}>
+                            </div>
+                        </div>
+
+                        <div class="form-group add-event-venue">
+                            <label class="col-md-4 control-label">Место проведения (площадка)</label>
+                            <div class="col-md-8 text-left">
+                                <select class="selectpicker mb-2" name="event_venues" data-live-search="true">
+                                    <option data-icon="icon-Pointer" value="">---------</option>
+                                    {% for item in venue %}
+                                        {% if item.is_reserve %}
+                                            <option data-icon="icon-Pointer" value="{{ item.id }}" {% if article.venue_id == item.id %}selected{% endif %}>{{ item.title }}: {{ item.street.district.city.area }}, {{ item.street.district.city.type_city.abbreviation }} {{ item.street.district.city }}, {{ item.street.district }}, {{ item.street}} {{ item.house }}{% if item.office %}-{{ item.office }}{% endif %}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group add-venue">
+                            <label class="col-md-4 control-label">Место проведения</label>
+                            <div class="col-md-8">
+                                <select class="selectpicker mb-2" name="venues" data-live-search="true">
+                                    <option data-icon="icon-Pointer" value="">---------</option>
+                                    {% for item in street %}
+                                        <option data-icon="icon-Pointer" value="{{ item.id }}" {% if article.venue.street_id == item.id %}selected{% endif %}>{{ item.district.city.area }}, {{ item.district.city.type_city.abbreviation }} {{ item.district.city }}, {{ item.district }}, {{ item }}</option>
+                                    {% endfor %}
+                                </select>
+                                <input type="text" class="form-control mb-2" name="house" placeholder="Номер дома" {% if article and article.venue.house and not article.venue.is_reserve %}value="{{ article.venue.house }}"{% endif %}>
+                                <input type="text" class="form-control mb-2" name="office" placeholder="Номер офиса" {% if article and article.venue.office and not article.venue.is_reserve %}value="{{ article.venue.office }}"{% endif %}>
+                                <input type="text" class="form-control" name="venue_description" placeholder="Описание" {% if article and article.venue.description and not article.venue.is_reserve %}value="{{ article.venue.description }}"{% endif %}>
+                            </div>
+                        </div>
+
+                        {% if article and article.photo.all  %}
+                            {% for item in article.photo.all %}
+                            <div class="col-12 my-3">
+                                <img src="/media/{{ item.path }}">
+                                <a href="#" class="del-image" data-id="{{ item.id }}">Удалить</a>
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <div class="form-group img-add">
+                            <label for="main-photo" class="col-md-4 control-label">Изображение галереи</label>
+
+                            <div class="col-md-8">
+                                <input id="main-photo" type="file" name="photos" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-md-8 col-md-offset-4 text-left">
+                                <a href="#" class="add-image-link">Добавить изображение</a>
+                            </div>
+                        </div>
+
+                        <div class="block-venue">
+                            <div class="form-group date-block">
+                                <label class="col-md-4 control-label">Дата</label>
+
+                                <div class="col-md-8">
+                                    <input type="date" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group time-block">
+                                <label class="col-md-4 control-label">Время</label>
+
+                                <div class="col-md-8">
+                                    <input type="text" placeholder="Время (10:00, 10:00-11:00)" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group action-block">
+                                <label class="col-md-4 control-label">Событие</label>
+
+                                <div class="col-md-8">
+                                    <input type="text" placeholder="Кофепауза" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-8 col-md-offset-4 text-left">
+                                    <a href="#" class="add-action">Добавить событие</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if article and article.value %}
+                            {% for ind, ven in article.value.items %}
+                                {% if ind == 'venues' %}
+                                    {% for value_ven in ven %}
+                                        <div class="block-venue">
+                                            {% for key, val in value_ven.items %}
+                                                {% if key == "date" %}
+                                                <div class="form-group date-block">
+                                                    <label class="col-md-4 control-label">Дата</label>
+
+                                                    <div class="col-md-8">
+                                                        <input type="date" class="form-control" value="{{ val }}">
+                                                    </div>
+                                                </div>
+                                                {% elif key|startswith:"time" %}
+                                                    <div class="form-group time-block">
+                                                        <label class="col-md-4 control-label">Время</label>
+
+                                                        <div class="col-md-8">
+                                                            <input type="text" placeholder="Время (10:00, 10:00-11:00)" class="form-control" value="{{ val }}">
+                                                        </div>
+                                                    </div>
+                                                {% elif key|startswith:"action" %}
+                                                    <div class="form-group action-block">
+                                                        <label class="col-md-4 control-label">Событие</label>
+
+                                                        <div class="col-md-8">
+                                                            <input type="text" placeholder="Кофепауза" class="form-control" value="{{ val }}">
+                                                        </div>
+                                                    </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                            <div class="form-group">
+                                                <div class="col-md-8 col-md-offset-4 text-left">
+                                                    <a href="#" class="add-action">Добавить событие</a>
+                                                </div>
+                                                <div class="col-md-8 col-md-offset-4 text-left">
+                                                    <a href="#" class="delete-block-venue">Удалить день</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+
+                        <div class="form-group">
+                            <div class="col-md-8 col-md-offset-4 text-left">
+                                <a href="#" class="add-block-venue">Добавить день</a>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-12">
+                                <div class="checkbox">
+                                    <label>
+                                        {{ form.is_show }} Опубликовано
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-12">
+                                <button type="submit" class="btn" onclick="venuesFunction()">
+                                    Опубликовать
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        $(document).ready(function(){
+            if($('.social-add').length > 1){
+                $('.social-add').first().remove();
+            }
+            if($('.block-venue').length > 1){
+                $('.block-venue').first().remove();
+            }
+
+            {% if article and article.category.all %}
+                {% for category in article.category.all %}
+                    $('select[name=categories] option[value={{ category.id }}]').attr("selected", "selected")
+                {% endfor %}
+                $('.selectpicker').selectpicker("refresh")
+            {% endif %}
+        });
+
+        function venuesFunction(){
+            var array = {};
+            var result = [];
+            for (var i = 0; i < $('.block-venue').length; i++){
+                if ($($('.block-venue')[i]).find('.date-block input').val() == ""){
+                    break;
+                }
+                array = {};
+
+                array['date'] = $($('.block-venue')[i]).find('.date-block input').val();
+                for (var j = 0; j < $($('.block-venue')[i]).find('.action-block').length; j++){
+                    if ($($($('.block-venue')[i]).find('.time-block input')[j]).val() == "") {
+                        continue;
+                    }
+                    array['time_' + j] = $($($('.block-venue')[i]).find('.time-block input')[j]).val();
+                    array['action_' + j] = $($($('.block-venue')[i]).find('.action-block input')[j]).val();
+                }
+                result.push(array);
+            }
+            $('form#mainform').append('<input type=hidden name=hidden-block value=' + JSON.stringify(result).replace(/\s/g, '&nbsp;') + '>');
+            $('form#mainform').removeProp('onsubmit');
+        }
+
+        $('a.del-image').click(function (e) {
+            var thisLocal = this;
+            $.ajax({
+                type: "POST",
+                beforeSend: function(request) {
+                    request.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
+                },
+                url: "/article/del-img",
+                data: "id=" + $(thisLocal).attr('data-id'),
+                processData: false,
+                success: function(msg) {
+                    if (msg.length != 0 && msg == "true")
+                    {
+                        $(thisLocal).parent().remove();
+                    }
+                }
+            });
+
+            e.preventDefault();
+        });
+        /*$('body').on('click', '.delete-selectpicker-cat', function (e) {
+            e.preventDefault();
+            if ($('.cat-add').length != 1) {
+                $(this).parent().parent().remove();
+            }else{
+                $(this).remove();
+            }
+        });*/
+        $('body').on('click', '.delete-selectpicker-soc', function (e) {
+            e.preventDefault();
+            if ($('.social-add').length != 1) {
+                $(this).parent().parent().remove();
+            }else{
+                $(this).remove();
+            }
+        });
+        $('body').on('click', '.delete-image-b', function (e) {
+            e.preventDefault();
+            if ($('.img-add').length != 1) {
+                $(this).parent().parent().remove();
+            }else{
+                $(this).remove();
+            }
+        });
+        /*$('body').on('click', '.delete-selectpicker-event-venue', function (e) {
+            e.preventDefault();
+            if ($('.add-event-venue').length != 1) {
+                $(this).parent().parent().remove();
+            }else{
+                $(this).remove();
+            }
+        });*/
+        $('body').on('click', '.delete-block-venue', function (e) {
+            e.preventDefault();
+            if ($('.block-venue').length != 1) {
+                $(this).parent().parent().parent().remove();
+            }else{
+                $(this).remove();
+            }
+        });
+        /*$('body').on('click', '.delete-selectpicker-venue', function (e) {
+            e.preventDefault();
+            if ($('.add-venue').length != 1) {
+                $(this).parent().parent().remove();
+            }else{
+                $(this).remove();
+            }
+        });*/
+        $('body').on('click', 'a.add-action', function (e) {
+            e.preventDefault();
+            $(this).parent().parent().parent().find('.action-block').last().after(
+                '<div class="form-group time-block">' +
+                '<label class="col-md-4 control-label">Время</label>' +
+                '<div class="col-md-8">' +
+                '<input type="text" placeholder="Время (10:00, 10:00-11:00)" class="form-control">' +
+                '</div>' +
+                '</div>' +
+                '<div class="form-group action-block">' +
+                '<label class="col-md-4 control-label">Событие</label>' +
+                '<div class="col-md-8">' +
+                '<input type="text" placeholder="Кофепауза" class="form-control">' +
+                '</div>' +
+                '</div>'
+            );
+        });
+        $('a.add-block-venue').click(function (e) {
+            $('.block-venue').last().after(
+                '<div class="block-venue">' +
+                '<div class="form-group date-block">' +
+                '<label class="col-md-4 control-label">Дата</label>' +
+                '<div class="col-md-8">' +
+                '<input type="date" class="form-control">' +
+                '</div>' +
+                '</div>' +
+                '<div class="form-group time-block">' +
+                '<label class="col-md-4 control-label">Время</label>' +
+                '<div class="col-md-8">' +
+                '<input type="text" placeholder="Время (10:00, 10:00-11:00)" class="form-control">' +
+                '</div>' +
+                '</div>' +
+                '<div class="form-group action-block">' +
+                '<label class="col-md-4 control-label">Событие</label>' +
+                '<div class="col-md-8">' +
+                '<input type="text" placeholder="Кофепауза" class="form-control">' +
+                '</div>' +
+                '</div>' +
+                '<div class="form-group">' +
+                '<div class="col-md-8 col-md-offset-4 text-left">' +
+                '<a href="#" class="add-action">Добавить событие</a>' +
+                '</div>' +
+                '<div class="col-md-8 col-md-offset-4 text-left">' +
+                '<a href="#" class="delete-block-venue">Удалить день</a>' +
+                '</div>' +
+                '</div>' +
+                '</div>'
+            );
+
+            $(".selectpicker").selectpicker('refresh');
+            e.preventDefault();
+        });
+        /*$('a.add-category-link').click(function (e) {
+            $('.cat-add').last().after(
+                '<div class="form-group cat-add">' +
+                '<label class="col-md-4 control-label">Категории</label>' +
+                '<div class="col-md-8 text-left">' +
+                '<select class="selectpicker mb-2" name="categories-add[]" data-live-search="true">' +
+                $('.cat-add').last().find('select.selectpicker').clone().html() +
+                '</select>' +
+                '<a href="#" class="delete-selectpicker-cat">Удалить</a>' +
+                '</div>' +
+                '</div>'
+            );
+
+            $(".selectpicker").selectpicker('refresh');
+            e.preventDefault();
+        });*/
+        $('a.add-social-link').click(function (e) {
+            $('.social-add').last().after(
+                '<div class="form-group social-add">' +
+                '<label class="col-md-4 control-label">Соц сети</label>' +
+                '<div class="col-md-8 text-left">' +
+                '<select class="selectpicker" name="socials_type" data-live-search="true">' +
+                $('.social-add').last().find('select.selectpicker').clone().html() +
+                '</select>' +
+                '<input type="text" name="socials_val" class="form-control my-2" placeholder="Ссылка (www.example.com/...)">' +
+                '<a href="#" class="delete-selectpicker-soc">Удалить</a>' +
+                '</div>' +
+                '</div>'
+            );
+
+            $(".selectpicker").selectpicker('refresh');
+            e.preventDefault();
+        });
+        $('a.add-image-link').click(function (e) {
+            $('.img-add').last().after(
+                '<div class="form-group img-add">' +
+                '<label class="col-md-4 control-label">Изображение галереи</label>' +
+                '<div class="col-md-8 text-left">' +
+                '<input id="main-photo" type="file" name="photos" class="form-control">' +
+                '<a href="#" class="delete-image-b">Удалить</a>' +
+                '</div>' +
+                '</div>'
+            );
+
+            e.preventDefault();
+        });
+        $('input:radio').change(function (e) {
+            if($(this).attr('value') == "no"){
+                $('input[name=price]').removeProp('disabled');
+            }else{
+                $('input[name=price]').prop('disabled', 'disabled');
+            }
+        });
+    </script>
+{% endblock %}

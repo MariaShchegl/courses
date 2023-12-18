@@ -1,0 +1,1 @@
+[{"model": "events.age", "pk": 1, "fields": {"age": "13+", "is_publish": true}}, {"model": "events.age", "pk": 2, "fields": {"age": "16+", "is_publish": false}}, {"model": "events.age", "pk": 3, "fields": {"age": "18+", "is_publish": false}}]

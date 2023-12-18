@@ -1,0 +1,1 @@
+[{"model": "events.typeevent", "pk": 1, "fields": {"type": "мероприятие"}}, {"model": "events.typeevent", "pk": 2, "fields": {"type": "курсы"}}]

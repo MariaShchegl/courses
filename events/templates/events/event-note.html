@@ -1,0 +1,394 @@
+{% extends "events/wrapper.html" %}
+
+{% block title %}{{ article.title }}{% endblock %}
+
+{% block meta_title %}{{ article.meta_title }}{% endblock %}
+{% block meta_keywords %}{{ article.meta_keywords }}{% endblock %}
+{% block meta_description %}{{ article.meta_description }}{% endblock %}
+
+{% block action-search %}{% url 'events:index_event' %}{% endblock %}
+
+{% load startswith %}
+
+{% block content %}
+    <!-- PageBanner -->
+    <div class="container-fluid page-banner event-grid event-list no-padding">
+        <div class="section-padding"></div>
+        <div class="container">
+            <div class="banner-content-block">
+                <div class="banner-content">
+                    <h3>{{ article.title }}</h3>
+                    <ol class="breadcrumb">
+                        <li><a href="{% url 'events:index' %}">Главная</a></li>
+                        <li><a href="{% url 'events:index_event' %}">Мероприятия</a></li>
+                        <li class="active">Объявление</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        <div class="section-padding"></div>
+    </div><!-- PageBanner /- -->
+
+    <!-- Event List -->
+    <div class="container-fluid eventsingle eventlist upcoming-event latest-blog our-history no-padding">
+        <div class="section-padding"></div>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-9 col-sm-8 content-area">
+                    <article class="type-post">
+                        {% if article.photo.all %}
+                            <div class="entry-cover">
+                                <div id="myCarousel" class="carousel slide" data-ride="carousel">
+                                    <!-- Indicators -->
+                                    <ol class="carousel-indicators">
+                                        {% for item in article.photo.all %}
+                                            <li data-target="#myCarousel" data-slide-to="{{ forloop.counter }}" class="{% if forloop.first %}active{% endif %}"></li>
+                                        {% endfor %}
+                                    </ol>
+
+                                    <!-- Wrapper for slides -->
+                                    <div class="carousel-inner">
+                                        {% for item in article.photo.all %}
+                                        <div class="item {% if forloop.first %}active{% endif %}">
+                                            <img src="/media/{{ item.path }}" width="820" height="410">
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+
+                                    <!-- Left and right controls -->
+                                    {% if article.photo.all.count > 1 %}
+                                    <a class="left carousel-control" href="#myCarousel" data-slide="prev">
+                                        <span class="glyphicon glyphicon-chevron-left"></span>
+                                        <span class="sr-only">Previous</span>
+                                    </a>
+                                    <a class="right carousel-control" href="#myCarousel" data-slide="next">
+                                        <span class="glyphicon glyphicon-chevron-right"></span>
+                                        <span class="sr-only">Next</span>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endif %}
+                        <div class="entry-block">
+                            <div class="entry-title">
+                                <h3>{{ article.title }}</h3>
+                            </div>
+                            <div class="entry-meta">
+                                <div class="post-date">
+                                    <p>{{ article.start_event|date:"M" }}<span>{{ article.start_event|date:"d" }}</span></p>
+                                </div>
+                                <div class="post-metablock">
+                                    <div class="post-time">
+                                        {% if article.price == "Бесплатно" %} {{article.price}} {% else %}от {{ article.price }}руб {% endif %}
+                                    </div>
+                                    <div class="post-location">
+                                        {% for venue in article.venue.all %}
+                                        <span class="icon icon-Pointer"></span>
+                                        <span>{% if venue.title %}({{ venue.title }}): {% endif %} {{ venue.street.district.city.area }}, {{ venue.street.district.city.type_city.abbreviation }} {{ venue.street.district.city }}, {{ venue.street.district }}, {{ venue.street}} {{ venue.house }}{% if venue.office %}-{{ venue.office }}{% endif %}</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <ul>
+                                    {% for value_soc in soc_links %}
+                                        {% for key, item in value_soc.items %}
+                                            <li class="{{ key }} mb-2"><a href="{{ item }}" title="{{ key }}"><i class="fa fa-{{ key }}"></i></a></li>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            <div class="entry-content">
+                                <p>
+                                    <i class="icon icon-Tag"></i>
+                                    {% for category in article.category.all %}
+                                        {{ category }}
+                                        {% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </p>
+                                <p>
+                                    <i class="icon icon-User"></i>
+                                    {% if article.user.is_distribution %}<span title='Проверенный'><i class='fa fa-check'></i></span>{% endif %}{{ article.user.username }}
+                                </p>
+                                {{ article.description }}
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Schedule Section -->
+                    {% if values %}
+                        <div class="container-fluid no-padding schedule-section">
+                            <div class="section-header">
+                                <h3>Расписание:</h3>
+                            </div>
+                            <div class="schedule-block">
+                                <ul class="nav nav-tabs" role="tablist">
+                                    {% for itemD in values %}
+                                        {% for key, item in itemD.items %}
+                                            {% if key == "date" %}
+                                                <li role="presentation">
+                                                    <a href="#schedule_{{ forloop.parentloop.counter }}" aria-controls="schedule_1" role="tab" data-toggle="tab">
+                                                        <h3>{{ item|str_to_date|date:"F" }}</h3>
+                                                        <span>{{ item|str_to_date|date:"d-m-Y" }}</span>
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endfor %}
+                                </ul>
+                                <div class="tab-content">
+                                    {% for itemD in values %}
+                                        <div role="tabpanel" class="tab-pane fade" id="schedule_{{ forloop.counter }}">
+                                            <div class="panel-group schedule-accordion" id="accordion" role="tablist" aria-multiselectable="true">
+                                                {% for key, item in itemD.items %}
+                                                {% if key|startswith:"time" %}
+                                                        <div class="panel panel-default">
+                                                            <div class="panel-heading" role="tab" id="schedule_accrodion_heading_1">
+                                                                <h4 class="panel-title">
+                                                                    <span>{{ item }}</span>
+                                                                    {% for key1, item1 in itemD.items  %}
+                                                                        {% with ind=forloop.parentloop.counter|add:"-2" %}
+                                                                            {% if key1|startswith:"action" and key1|endswith:ind  %}
+                                                                                <p class="title-event-time">
+                                                                                    {{ item1 }}
+                                                                                </p>
+                                                                            {% endif %}
+                                                                        {% endwith %}
+                                                                    {% endfor %}
+                                                                </h4>
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %} <!-- Schedule Section /- -->
+
+                    <div class="container-fluid no-padding schedule-section">
+                        <div class="section-header">
+                            <h3>Контакты:</h3>
+                        </div>
+                        <div>
+                            <p>{{ article.contacts }}</p>
+                        </div>
+                    </div>
+
+                    <div id="map"></div>
+
+                    {% now "Y-m-d H:i:s" as datetime_now %}
+                    {% if article.comment_event.all|count_for_arr:"Q(is_publish=True)" %}
+                    <!-- Post Comment -->
+                    <div class="post-comment">
+                        <h3><span>{{ article.comment_event.all|count_for_arr:"Q(is_publish=True)" }}</span> Комментарии</h3>
+                        {% for comment in article.comment_event.all %}
+                            {% if comment.parent_id == 0 and comment.is_publish %}
+                            <div class="media">
+                                <!--<div class="media-left">
+                                    <a href="#" title="{{ comment.user.username }}">
+                                        <img alt="Avtar" src="/media/{{ comment.user.avatar }}" class="media-object" width="97" height="97"/>
+                                    </a>
+                                </div>-->
+                                <div class="media-body">
+                                    <div class="media-content">
+                                        <h4 class="media-heading">
+                                            {{ comment.user.username }}<span>{{ comment.created_at|date:"d M Y" }}</span>{% if user.is_authenticated and user.id == comment.user.id or perms.events.delete_comment %}<form action="{% url 'events:delete_comment' comment.id %}" method="post">{% csrf_token %}<input type="hidden" name="alias" value="{{ article.alias }}"><a href="#" class="del-comment" data-id="{{ comment.id }}"><i class="fa fa-close"></i></a></form>{% endif %} {% if user.is_authenticated and user.id == comment.user.id %}<a href="#" class="edit-comment ml-2" data-id="{{ comment.id }}"><i class="fa fa-edit"></i></a>{% elif user.is_authenticated %}{% if user.date_muted|date:"Y-m-d H:i:s" < datetime_now or not user.date_muted %}<a href="#" class="reply-comment" data-id="{{ comment.id }}"><i class="fa fa-reply"></i>Ответить</a>{% endif %}{% endif %}
+                                        </h4>
+                                        <p>{{ comment.comment }}</p>
+                                    </div>
+                                    {% for comment_s in article.comment_event.all %}
+                                        {% if comment_s.parent_id == comment.id and comment_S.is_publish %}
+                                        <div class="media">
+                                            <!--<div class="media-left">
+                                                <a href="#" title="{{ comment_s.user.username }}">
+                                                    <img alt="Avtar" src="/media/{{ comment_s.user.avatar }}" class="media-object" width="97" height="97"/>
+                                                </a>
+                                            </div>-->
+                                            <div class="media-body">
+                                                <div class="media-content">
+                                                    <h4 class="media-heading">
+                                                        {{ comment_s.user.username }}<span>{{ comment_s.created_at|date:"d M Y" }}</span>{% if user.is_authenticated and user.id == comment_s.user.id or perms.events.delete_comment %}<form action="{% url 'events:delete_comment' comment_s.id %}" method="post">{% csrf_token %}<input type="hidden" name="alias" value="{{ article.alias }}"><a href="#" class="del-comment" data-id="{{ comment_s.id }}"><i class="fa fa-close"></i></a></form>{% endif %} {% if user.is_authenticated and user.id == comment_s.user.id %}<a href="#" class="edit-comment ml-2" data-id="{{ comment_s.id }}"><i class="fa fa-edit"></i></a>{% elif user.is_authenticated %}{% if user.date_muted|date:"Y-m-d H:i:s" < datetime_now or not user.date_muted %}<a href="#" class="reply-comment" data-id="{{ comment_s.id }}"><i class="fa fa-reply"></i>Ответить</a>{% endif %}{% endif %}
+                                                    </h4>
+                                                    <p>{{ comment_s.comment }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div><!-- Post Comment /- -->
+                    {% endif %}
+
+                    {% if user.is_authenticated %}
+                        {% if user.date_muted|date:"Y-m-d H:i:s" < datetime_now or not user.date_muted %}
+                        <div id="comment-form-block">
+                            <form id="comment-form" class="comment-form" method="post" action="{% url 'events:add_comment' %}">
+                                {% csrf_token %}
+                                <h3>Оставить комментарий</h3>
+                                <div class="row">
+                                    <input id="parent-id-comment" type="hidden" name="parent-id" value="0">
+                                    <input type="hidden" name="alias" value="{{ article.alias }}">
+                                    <div class="form-group col-md-12">
+                                        {{ form.comment }}
+                                    </div>
+                                    <input type="submit" value="Отправить" name="submit-comment" title="Отправить"/>
+                                </div>
+                            </form>
+                        </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                <div class="col-md-3 col-sm-4 widget-area">
+                    {% if user.is_authenticated and user.id == article.user.id or perms.events.delete_event %}
+                        <aside class="widget widget_find_event">
+                            <div class="widget-title">
+                                <span class="icon icon-Settings"></span>
+                                <h3>Действия</h3>
+                            </div>
+                            <div class="find-event_top-block">
+                                {% if user.id == article.user.id %}<a href="{% url 'events:edit_event' article.alias %}" class="btn">Редактировать</a>{% endif %}
+                                {% if article.user.id == user.id or perms.events.delete_event %}<a href="{% url 'events:delete_event' article.alias %}" class="btn" onclick="if(!confirm('Вы действительно хотите удалить объявление?')){return false;}">Удалить</a>{% endif %}
+                            </div>
+                        </aside>
+                    {% endif %}
+
+                    <aside class="widget widget_find_event">
+                        <div class="widget-title">
+                            <span class="icon icon-Podium"></span>
+                            <h3>Фильтрация</h3>
+                        </div>
+                        <div class="find-event_top-block">
+                            <form id="filters" method="get" action="{% url 'events:index_event' %}">
+                                <div class="checkbox text-left">
+                                    <input type="checkbox" class="form-check-input" id="materialChecked" name="free" {% if request.GET.free %}checked{% endif %}>
+                                    <label class="form-check-label" for="materialChecked">Бесплатные</label>
+                                </div>
+                                <div class="event-select-option">
+                                    <select class="selectpicker" name="ages" data-live-search="true">
+                                        <option data-icon="icon-User" value="0">Возраст</option>
+                                        {% for age in ages %}
+                                            <option data-icon="icon-Users" value="{{ age.id }}" {% if age.id == request.GET.ages|add:"0" %}selected{% endif %}>{{ age }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="event-select-option">
+                                    <select class="selectpicker" name="categories" data-live-search="true">
+                                        <option data-icon="icon-Tag" value="0">Категория</option>
+                                        {% for category in categories %}
+                                            <option data-icon="icon-Tag" value="{{ category.alias }}" {% if category.alias == request.GET.categories %}selected{% endif %}>{{ category }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="event-select-option">
+                                    <select class="selectpicker" name="areas" data-live-search="true">
+                                        <option data-icon="icon-WorldWide" value="0">Область</option>
+                                        {% for area in areas %}
+                                            <option data-icon="icon-WorldWide" value="{{ area.id }}" {% if area.id == request.GET.areas|add:"0" %}selected{% endif %}>{{ area }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <button title="Найти" type="submit">Найти</button>
+                            </form>
+                        </div>
+                    </aside>
+                    {% if new_events %}
+                    <aside class="widget widget_recent">
+                        <div class="widget-title">
+                            <span class="icon icon-Notes"></span>
+                            <h3>Новые объявления</h3>
+                        </div>
+                        <div class="recent-block">
+                            {% for event in new_events %}
+                            <div class="recent-content">
+                                <a href="{% url 'events:show_event' event.alias %}"><img src="/media/{{ event.main_photo }}" width="72" height="72"/></a>
+                                <h3><a href="{% url 'events:show_event' event.alias %}">{{ event.title }}</a></h3>
+                                <a href="{% url 'events:show_event' event.alias %}">{{ event.created_at|date:"d.m.Y"}}</a>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </aside>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="section-padding"></div>
+    </div><!-- Event List /- -->
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        var Mapss = function geoadres(adress) {
+            var resultlat = '';
+            var resultlng = '';
+            $.ajax({
+                async: false,
+                dataType: "json",
+                url: 'https://maps.google.com/maps/api/geocode/json?key=AIzaSyDsd3AP-bUy6R00-f0Uhjb9qt6fN2v1Ty0&address=' + adress,
+                success: function(data){
+                    for (var key in data.results) {
+                        resultlat = data.results[key].geometry.location.lat;
+                        resultlng = data.results[key].geometry.location.lng;
+                    }
+                }
+            });
+            return { lat: resultlat, lng: resultlng}
+        }
+
+        function initMap() {
+            const myLatLng = { lat: 53.88957668313562, lng: 27.429991373011063 };
+            const map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 14,
+                center: new google.maps.LatLng(new Mapss($("div.post-location")[0].outerText).lat, new Mapss($("div.post-location")[0].outerText).lng),
+            });
+
+            new google.maps.Marker({
+                position: new google.maps.LatLng(new Mapss($("div.post-location")[0].outerText).lat, new Mapss($("div.post-location")[0].outerText).lng),
+                map: map,
+            });
+        }
+
+        window.initMap = initMap;
+
+        $('a.reply-comment').click(function (e) {
+            $('#parent-id-comment').val($(this).attr('data-id'));
+            $('#comment-form').find('input[name=submit-comment]').after(
+                '<a href="#" class="delete-comment-form">Отмена</a>'
+            );
+            $('#comment-form').appendTo($(this).parent().parent());
+            e.preventDefault();
+        });
+
+        $('a.edit-comment').click(function (e) {
+            $('#parent-id-comment').val($(this).attr('data-id'));
+            $('#comment-form').prop('action', '{% url 'events:edit_comment' 0 %}'.replace('0', $(this).attr('data-id')));
+            $('.delete-comment-form').remove();
+            $('#comment-form').find('input[name=submit-comment]').after(
+                '<a href="#" class="delete-comment-form">Отмена</a>'
+            );
+            $('textarea[name=comment]').val($(this).parent().parent().find('p').html());
+            $('#comment-form').appendTo($(this).parent().parent());
+            e.preventDefault();
+        });
+
+        $('a.del-comment').click(function (e) {
+            if (!confirm("Вы действительно хотите удалить комментарий?")){
+                e.preventDefault();
+            }else{
+                $(this).parent().submit();
+            }
+        });
+
+        $('body').on('click', '.delete-comment-form', function (e) {
+            $('#comment-form').appendTo($('#comment-form-block'));
+            $('#parent-id-comment').val('0');
+            $('#comment-form').find('input[name=_method]').remove();
+            $('#comment-form').prop('action', '{% url 'events:add_comment' %}');
+            $(this).remove();
+            e.preventDefault();
+        });
+    </script>
+{% endblock %}

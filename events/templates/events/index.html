@@ -1,0 +1,190 @@
+{% extends "events/wrapper.html" %}
+
+{% block title %}Главная{% endblock %}
+
+{% block action-search %}{% url 'events:index' %}{% endblock %}
+
+{% load paging %}
+
+{% block content %}
+    <!-- PageBanner -->
+    <div class="container-fluid page-banner event-grid event-list no-padding">
+        <div class="section-padding"></div>
+        <div class="container">
+            <div class="banner-content-block">
+                <div class="banner-content">
+                    <h3>Главная</h3>
+                    <ol class="breadcrumb">
+                        <li class="active"><a href="{% url 'events:index' %}">Главная</a></li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        <div class="section-padding"></div>
+    </div><!-- PageBanner /- -->
+
+    <!-- Event List -->
+    <div class="container-fluid eventlist upcoming-event latest-blog no-padding">
+        <div class="section-padding"></div>
+        <div class="container">
+            <div class="section-header">
+                <h3>Каталог</h3>
+                <span>Секции, кружки, досуг</span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-9 col-sm-6 col-xs-6 content-area">
+                    {% for event in events %}
+                    <article class="type-post">
+                        <div class="entry-cover">
+                            <a href="{% url 'events:show' event.alias %}"><img src="/media/{{ event.main_photo }}" alt="event" width="310" height="246"/></a>
+                        </div>
+                        <div class="entry-block">
+                            <div class="entry-title">
+                                <a href="{% url 'events:show' event.alias %}" title="{{ event.title }}"><h3>{{ event.title }}</h3></a>
+                            </div>
+                            <div class="entry-meta">
+                                <div class="post-date">
+                                    <p>{% if event.price == "Бесплатно" %} {{event.price}} {% else %}от {{ event.price }}руб {% endif %}</p>
+                                </div>
+                            </div>
+                            <div class="entry-content">
+                                <p>
+                                    <i class="icon icon-Tag"></i>
+                                    {% for category in event.category.all %}
+                                        {{ category }}
+                                        {% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </p>
+                                <p>
+                                    <i class="icon icon-User"></i>{% if event.user.is_distribution %}<span title='Проверенный'><i class='fa fa-check'></i></span>{% endif %}{{ event.user.username }}
+                                </p>
+                            </div>
+                            <a href="{% url 'events:show' event.alias %}" class="learn-more" title="Подробнее">Подробнее</a>
+                        </div>
+                    </article>
+                    {% empty %}
+                        Пусто
+                    {% endfor %}
+
+                    <!-- Pagination -->
+                    {% if events.paginator.num_pages > 1 %}
+                    <div class="ow-pagination">
+                        <nav>
+                            <ul class="pager">
+                                <li class="page-prv {% if not events.has_previous %}disabled{% endif %}"><a href="{% if events.has_previous %}?{% url_replace request 'page' events.previous_page_number %}{% else %}#{% endif %}" title="Предыдущая"><i class="fa fa-long-arrow-left" aria-hidden="true"></i>Предыдущая</a></li>
+                                {% for item in paginationList %}
+                                    <li class="num {% if item == events.number %}active{% endif %}">
+                                        <a href="?{% url_replace request 'page' item %}">{{ item }}</a>
+                                    </li>
+                                {% endfor %}
+                                <li class="page-next {% if not events.has_next %}disabled{% endif %}"><a href="{% if events.has_next %}?{% url_replace request 'page' events.next_page_number %}{% else %}#{% endif %}" title="Следующая">Следующая<i class="fa fa-long-arrow-right" aria-hidden="true"></i></a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-3 col-sm-6 col-xs-6 widget-area">
+                    <aside class="widget widget_find_event">
+                        <div class="widget-title">
+                            <span class="icon icon-Podium"></span>
+                            <h3>Фильтрация</h3>
+                        </div>
+                        <div class="find-event_top-block">
+                            <form id="filters" method="get" action="{% url 'events:index' %}">
+                                <div class="checkbox text-left">
+                                    <input type="checkbox" class="form-check-input" id="materialChecked" name="free" {% if request.GET.free %}checked{% endif %}>
+                                    <label class="form-check-label" for="materialChecked">Бесплатные</label>
+                                </div>
+                                <div class="event-select-option">
+                                    <select class="selectpicker" name="ages" data-live-search="true">
+                                        <option data-icon="icon-User" value="0">Возраст</option>
+                                        {% for age in ages %}
+                                            <option data-icon="icon-Users" value="{{ age.id }}" {% if age.id == request.GET.ages|add:"0" %}selected{% endif %}>{{ age }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="event-select-option">
+                                    <select class="selectpicker" name="categories" data-live-search="true">
+                                        <option data-icon="icon-Tag" value="0">Категория</option>
+                                        {% for category in categories %}
+                                            <option data-icon="icon-Tag" value="{{ category.alias }}" {% if category.alias == request.GET.categories %}selected{% endif %}>{{ category }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                {% if subcategories %}
+                                <div class="event-select-option">
+                                    <select class="selectpicker" name="subcategories" data-live-search="true">
+                                        <option data-icon="icon-Tag" value="0">Подкатегория</option>
+                                        {% for category in subcategories %}
+                                            <option data-icon="icon-Tag" value="{{ category.alias }}" {% if category.alias == request.GET.subcategories %}selected{% endif %}>{{ category }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                {% endif %}
+                                {% if subsubcategories %}
+                                <div class="event-select-option">
+                                    <select class="selectpicker" name="subsubcategories" data-live-search="true">
+                                        <option data-icon="icon-Tag" value="0">Подкатегория</option>
+                                        {% for category in subsubcategories %}
+                                            <option data-icon="icon-Tag" value="{{ category.alias }}" {% if category.alias == request.GET.subsubcategories %}selected{% endif %}>{{ category }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                {% endif %}
+                                <div class="event-select-option">
+                                    <select class="selectpicker" name="areas" data-live-search="true">
+                                        <option data-icon="icon-WorldWide" value="0">Область</option>
+                                        {% for area in areas %}
+                                            <option data-icon="icon-WorldWide" value="{{ area.id }}" {% if area.id == request.GET.areas|add:"0" %}selected{% endif %}>{{ area }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                {% if cities %}
+                                    <div class="event-select-option">
+                                        <select class="selectpicker" name="cities" data-live-search="true">
+                                            <option data-icon="icon-Tag" value="0">Город</option>
+                                            {% for city in cities %}
+                                                <option data-icon="icon-WorldWide" value="{{ city.id }}" {% if city.id == request.GET.cities|add:"0" %}selected{% endif %}>{{ city.type_city.abbreviation }}{{ city }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                {% endif %}
+                                {% if districts %}
+                                    <div class="event-select-option">
+                                        <select class="selectpicker" name="districts" data-live-search="true">
+                                            <option data-icon="icon-Tag" value="0">Район</option>
+                                            {% for district in districts %}
+                                                <option data-icon="icon-WorldWide" value="{{ district.id }}" {% if district.id == request.GET.districts|add:"0" %}selected{% endif %}>{{ district }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                {% endif %}
+                                <button title="Найти" type="submit">Найти</button>
+                            </form>
+                        </div>
+                    </aside>
+
+                    {% if new_events %}
+                    <aside class="widget widget_recent">
+                        <div class="widget-title">
+                            <span class="icon icon-Notes"></span>
+                            <h3>Новые объявления</h3>
+                        </div>
+                        <div class="recent-block">
+                            {% for event in new_events %}
+                            <div class="recent-content">
+                                <a href="{% url 'events:show' event.alias %}"><img src="/media/{{ event.main_photo }}" width="72" height="72"/></a>
+                                <h3><a href="{% url 'events:show' event.alias %}">{{ event.title }}</a></h3>
+                                <a href="{% url 'events:show' event.alias %}">{{ event.created_at|date:"d.m.Y"}}</a>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </aside>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="section-padding"></div>
+    </div><!-- Event List /- -->
+{% endblock %}

@@ -1,0 +1,1 @@
+[{"model": "events.street", "pk": 1, "fields": {"street": "Лобанка", "is_publish": true, "district": 1}}, {"model": "events.street", "pk": 2, "fields": {"street": "Сухареская", "is_publish": true, "district": 1}}, {"model": "events.street", "pk": 3, "fields": {"street": "Горецкого", "is_publish": true, "district": 1}}]

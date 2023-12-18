@@ -1,0 +1,1 @@
+[{"model": "events.typecity", "pk": 1, "fields": {"type": "testtc", "abbreviation": "test"}}, {"model": "events.typecity", "pk": 2, "fields": {"type": "город", "abbreviation": "г."}}, {"model": "events.typecity", "pk": 3, "fields": {"type": "агрогородок", "abbreviation": "а-г."}}, {"model": "events.typecity", "pk": 4, "fields": {"type": "деревня", "abbreviation": "д."}}]
