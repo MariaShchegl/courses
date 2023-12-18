@@ -1,0 +1,54 @@
+{% extends "events/wrapper.html" %}
+
+{% block title %}Авторизация{% endblock %}
+
+{% block action-search %}{% url 'events:index' %}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-success" role="alert">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+            {% if form.errors %}
+                <div class="alert alert-danger" role="alert">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <div class="booking-form-block">
+                <h3>Авторизация</h3>
+                <form class="form-horizontal" method="POST" action="{% url 'account:login' %}">
+                    {% csrf_token %}
+
+                    <div class="form-group {% if form.errors %}has-error{% endif %}">
+                        <label for="{{ form.username.id_for_label }}" class="col-md-4 control-label">Логин</label>
+
+                        <div class="col-md-6">
+                            {{ form.username }}
+                        </div>
+                    </div>
+
+                    <div class="form-group {% if form.errors %}has-error{% endif %}">
+                        <label for="{{ form.password.id_for_label }}" class="col-md-4 control-label">Пароль</label>
+
+                        <div class="col-md-6">
+                            {{ form.password }}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-md-6 col-md-offset-4">
+                            <button type="submit" class="btn">
+                                Войти
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

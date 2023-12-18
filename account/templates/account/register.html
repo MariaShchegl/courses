@@ -1,0 +1,154 @@
+{% extends "events/wrapper.html" %}
+
+{% block title %}Регистрация{% endblock %}
+
+{% block action-search %}{% url 'events:index' %}{% endblock %}
+
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <div class="booking-form-block">
+                <h3>Регистрация</h3>
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-success" role="alert">{{ message }}</div>
+                        {# <div class="my-5">{{ message }}</div> #}
+                    {% endfor %}
+                {% endif %}
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                <form class="form-horizontal" method="POST" action="{% url 'account:register' %}">
+                    {% csrf_token %}
+
+                    <div class="form-group {% if form.errors.username %}has-error{% endif %}">
+                        <label for="{{ form.username.id_for_label }}" class="col-md-4 control-label">Псевдоним</label>
+
+                        <div class="col-md-6">
+                            {{ form.username }}
+
+                            {% if form.errors.username %}
+                                <span class="help-block">
+                                    <strong>{{ form.errors.username }}</strong>
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group {% if form.errors.email %}has-error{% endif %}">
+                        <label for="email" class="col-md-4 control-label">E-Mails</label>
+
+                        <div class="col-md-6">
+                            {{ form.email }}
+
+                            {% if form.errors.email %}
+                                <span class="help-block">
+                                    <strong>{{ form.errors.email }}</strong>
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group {% if form.errors.last_name %}has-error{% endif %}">
+                        <label for="{{ form.last_name.id_for_label }}" class="col-md-4 control-label">Фамилия</label>
+
+                        <div class="col-md-6">
+                            {{ form.last_name }}
+
+                            {% if form.errors.last_name %}
+                                <span class="help-block">
+                                    <strong>{{ form.errors.last_name }}</strong>
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group {% if form.errors.first_name %}has-error{% endif %}">
+                        <label for="{{ form.first_name.id_for_label }}" class="col-md-4 control-label">Имя</label>
+
+                        <div class="col-md-6">
+                            {{ form.first_name }}
+
+                            {% if form.errors.first_name %}
+                                <span class="help-block">
+                                    <strong>{{ form.errors.first_name }}</strong>
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group {% if form.errors.phone %}has-error{% endif %}">
+                        <label for="{{ form.phone.id_for_label }}" class="col-md-4 control-label">Телефон</label>
+
+                        <div class="col-md-6">
+                            {{ form.phone }}
+
+                            {% if form.errors.phone %}
+                                <span class="help-block">
+                                    <strong>{{ form.errors.phone }}</strong>
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group {% if form.errors.password1 or form.errors.password2 %}has-error{% endif %}">
+                        <label for="{{ form.password1.id_for_label }}" class="col-md-4 control-label">Пароль</label>
+
+                        <div class="col-md-6">
+                            {{ form.password1 }}
+
+                            {% if form.errors.password1 %}
+                                <span class="help-block">
+                                    <strong>{{ form.errors.password1 }}</strong>
+                                </span>
+                            {% endif %}
+                            {% if form.errors.password2 %}
+                                <span class="help-block">
+                                    <strong>{{ form.errors.password2 }}</strong>
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.password2.id_for_label }}" class="col-md-4 control-label">Подтвердить пароль</label>
+
+                        <div class="col-md-6">
+                            {{ form.password2 }}
+                        </div>
+                    </div>
+
+                    <div class="form-group {% if form.errors.isRule %}has-error{% endif %}">
+                        <div class="col-md-6 col-md-offset-4">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" name="rule" required> Я согласен с <a target="_blank" href="{% static 'events/fonts/agreement.pdf' %}">Правилами портала</a>
+
+                                    {% if form.errors.isRule %}
+                                        <span class="help-block">
+                                            <strong>{{ form.errors.isRule }}</strong>
+                                        </span>
+                                    {% endif %}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-md-6 col-md-offset-4">
+                            <button type="submit" class="btn">
+                                Зарегистрироваться
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

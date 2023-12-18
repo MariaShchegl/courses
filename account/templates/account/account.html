@@ -1,0 +1,194 @@
+{% extends "events/wrapper.html" %}
+
+{% block title %}Личный кабинет{% endblock %}
+
+{% block action-search %}{% url 'events:index' %}{% endblock %}
+
+{% block content %}
+    <!-- PageBanner -->
+    <div class="container-fluid page-banner event-grid event-list no-padding">
+        <div class="section-padding"></div>
+        <div class="container">
+            <div class="banner-content-block">
+                <div class="banner-content">
+                    <h3>Личный кабинет</h3>
+                    <ol class="breadcrumb">
+                        <li><a href="{% url 'events:index' %}">Главная</a></li>
+                        <li class="active">Личный кабинет</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        <div class="section-padding"></div>
+    </div><!-- PageBanner /- -->
+
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-success my-5" role="alert">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+
+                {% if user.date_muted >= now %}
+                    <div class="alert alert-danger">У вас мут по {{ user.date_muted }}</div>
+                {% else %}
+                <div class="find-event_top-block">
+                    {% if perms.news.add_news %} <a href="{% url 'admin:news_news_add' %}" class="btn btn-primary">Добавить новость</a> {% endif %}
+                    {% if perms.histories.add_history %} <a href="{% url 'admin:histories_history_add' %}" class="btn btn-primary">Добавить историю</a> {% endif %}
+                    {% if not user.is_staff %}
+                        <a href="{% url 'events:add_event' 'event' %}" class="btn btn-primary">Добавить мероприятие</a>
+                        <a href="{% url 'events:add_event' 'article' %}" class="btn btn-primary">Добавить объявление</a>
+                    {% endif %}
+                    {% if user.is_staff %}<a href="{% url 'account:confirm' %}" class="btn btn-primary">Подтверждения</a> {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid eventlist upcoming-event latest-blog no-padding">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 content-area">
+                    {% if articles %}
+                        <div class="section-header">
+                            <h3>Мои объявления</h3>
+                            <span>Курсы, кружки, секции</span>
+                        </div>
+                    {% endif %}
+                    {% for article in articles %}
+                        <div class="row">
+                            <article class="type-post">
+                                <div class="entry-cover">
+                                    <a href="{% url 'events:show' article.alias %}"><img src="/media/{{ article.main_photo }}" alt="history" width="310" height="246"/></a>
+                                </div>
+                                <div class="entry-block">
+                                    <div class="entry-title">
+                                        <a href="{% url 'events:show' article.alias %}" title="{{ article.title }}"><h3>{{ article.title }}</h3></a>
+                                    </div>
+                                    <div class="entry-meta">
+                                        <div class="post-date">
+                                            <p>{% if article.price == "Бесплатно" %} {{article.price}} {% else %}от {{ article.price }}руб {% endif %}</p>
+                                        </div>
+                                    </div>
+                                    <div class="entry-content">
+                                        <p>
+                                            <i class="icon icon-Tag"></i>
+                                            {% for category in article.category.all %}
+                                                {{ category }}
+                                                {% if not forloop.last %}, {% endif %}
+                                            {% endfor %}
+                                        </p>
+                                        <p>
+                                            <i class="icon icon-User"></i>{% if article.user.is_distribution %}<span title='Проверенный'><i class='fa fa-check'></i></span>{% endif %}{{ article.user.username }}
+                                        </p>
+                                        <p>
+                                            <i class="icon icon-On-Off"></i>{% if article.is_publish %}Опубликовано{% else %}Ожидает подтверждения{% endif %}
+                                        </p>
+                                    </div>
+                                    <a href="{% url 'events:show' article.alias %}" class="learn-more" title="Подробнее">Подробнее</a>
+                                </div>
+                            </article>
+                        </div>
+                    {% endfor %}
+
+                    {% if events %}
+                        <div class="section-header">
+                            <h3>Мои мероприятия</h3>
+                            <span>Митапы, конференции</span>
+                        </div>
+                    {% endif %}
+                    {% for event in events %}
+                        <div class="row">
+                            <article class="type-post">
+                                <div class="entry-cover">
+                                    <a href="{% url 'events:show_event' event.alias %}"><img src="/media/{{ event.main_photo }}" alt="history" width="310" height="246"/></a>
+                                </div>
+                                <div class="entry-block">
+                                    <div class="entry-title">
+                                        <a href="{% url 'events:show_event' event.alias %}" title="{{ event.title }}"><h3>{{ event.title }}</h3></a>
+                                    </div>
+                                    <div class="entry-meta">
+                                        <div class="post-date">
+                                            <p>{{ event.start_event|date:"M"}}<span>{{ event.start_event|date:"d"}}</span></p>
+                                        </div>
+                                        <div class="post-metablock">
+                                            <div class="post-time">
+                                                <span>{% if event.price == "Бесплатно" %} {{event.price}} {% else %}от {{ event.price }}руб {% endif %}</span>
+                                            </div>
+                                            {% for venue in event.venue.all %}
+                                            <div class="post-location">
+                                                <span class="icon icon-Pointer"></span>
+                                                <span>{{ venue.street.district.city.area }}, {{ venue.street.district.city.type_city.abbreviation }} {{ venue.street.district.city }}, {{ venue.street}} {{ venue.house }}</span>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <div class="entry-content">
+                                        <p>
+                                            <i class="icon icon-Tag"></i>
+                                            {% for category in event.category.all %}
+                                                {{ category }}
+                                                {% if not forloop.last %}, {% endif %}
+                                            {% endfor %}
+                                        </p>
+                                        <p>
+                                            <i class="icon icon-User"></i>{% if event.user.is_distribution %}<span title='Проверенный'><i class='fa fa-check'></i></span>{% endif %}{{ event.user.username }}
+                                        </p>
+                                        <p>
+                                            <i class="icon icon-On-Off"></i>{% if event.is_publish %}Опубликовано{% else %}Ожидает подтверждения{% endif %}
+                                        </p>
+                                    </div>
+                                    <a href="{% url 'events:show_event' event.alias %}" class="learn-more" title="Подробнее">Подробнее</a>
+                                </div>
+                            </article>
+                        </div>
+                    {% endfor %}
+
+                    <div class="booking-form-block">
+                        <form class="form-horizontal" method="POST">
+                            {% csrf_token %}
+
+                            <div class="form-group {% if form.errors %}has-error{% endif %}">
+                                <label for="{{ form.password1.id_for_label }}" class="col-md-4 control-label">Пароль</label>
+
+                                <div class="col-md-6">
+                                    {{ form.password1 }}
+                                    {% if form.errors.password1 %}
+                                        <span class="help-block">
+                                            <strong>{{ form.errors.password1 }}</strong>
+                                        </span>
+                                    {% endif %}
+                                    {% if form.errors.password2 %}
+                                        <span class="help-block">
+                                            <strong>{{ form.errors.password2 }}</strong>
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="form-group {% if form.errors %}has-error{% endif %}">
+                                <label for="{{ form.password2.id_for_label }}" class="col-md-4 control-label">Повторите пароль</label>
+
+                                <div class="col-md-6">
+                                    {{ form.password2 }}
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-md-6 col-md-offset-4">
+                                    <button type="submit" class="btn">
+                                        Сменить пароль
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="section-padding"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

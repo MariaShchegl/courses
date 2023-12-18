@@ -1,0 +1,424 @@
+@extends('layouts.app')
+
+@section('title', 'Админ панель')
+
+@section('action-search', route('index'))
+
+@section('content')
+    <!-- PageBanner -->
+    <div class="container-fluid page-banner event-grid event-list no-padding">
+        <div class="section-padding"></div>
+        <div class="container">
+            <div class="banner-content-block">
+                <div class="banner-content">
+                    <h3>Админ панель</h3>
+                    <ol class="breadcrumb">
+                        <li><a href="{{ route('index') }}">Главная</a></li>
+                        <li class="active">Админ панель</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        <div class="section-padding"></div>
+    </div><!-- PageBanner /- -->
+
+    <div class="container-fluid eventlist upcoming-event latest-blog no-padding">
+        <div class="section-padding"></div>
+        <div class="container admin-page">
+            <div class="section-header">
+                <h3>Админ панель</h3>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    @if(Session::has('message'))
+                        <div class="alert alert-success my-5" role="alert">{!! Session::get('message') !!}</div>
+                    @endif
+
+                    <div class="find-event_top-block">
+                        <a href="{{ route('news.create') }}" class="btn btn-primary">Добавить новость</a>
+                        <a href="{{ route('history.create') }}" class="btn btn-primary">Добавить историю</a>
+                        <a href="{{ route('confirm') }}" class="btn btn-primary">Подтверждения</a>
+                        <a href="{{ route('action') }}" class="btn btn-primary">Действия</a>
+                    </div>
+
+                    <div class="booking-form-block">
+                        <form id="categories" method="post" class="my-5">
+                            {{ csrf_field() }}
+                            <div class="event-select-option">
+                                <select class="selectpicker" name="category" data-live-search="true">
+                                    <option data-icon="icon-Tag" value="0">Категория</option>
+                                    @foreach ($categories as $category)
+                                        <option data-icon="icon-Tag" value="{{ $category->alias }}" >{{ $category->category }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <input id="textCategory" type="text" name="textCategory" class="form-control my-3" placeholder="Категория">
+                            <div class="event-select-option">
+                                <select class="selectpicker mb-4" name="parentCategory" data-live-search="true">
+                                    <option data-icon="icon-Tag" value="0">Родительская категория</option>
+                                    @foreach ($categories as $category)
+                                        <option data-icon="icon-Tag" value="{{ $category->alias }}" >{{ $category->category }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <button class="btn" title="Добавить" type="submit"  formaction="{{ route('category.store') }}">Добавить</button>
+                            <button class="btn edit-cat" title="Редактировать" type="submit" onclick="$(this).parent().append('<input type=hidden name=_method value=put>')" formaction="">Редактировать</button>
+                            <button class="btn del-cat" title="Удалить" type="submit" onclick="$(this).parent().append('<input type=hidden name=_method value=delete>')" formaction="">Удалить</button>
+                        </form>
+
+                        <form id="areas" method="post" class="my-5">
+                            {{ csrf_field() }}
+                            <div class="event-select-option">
+                                <select class="selectpicker" name="area" data-live-search="true">
+                                    <option data-icon="icon-Pointer" value="0">Область</option>
+                                    @foreach ($areas as $area)
+                                        <option data-icon="icon-Pointer" value="{{ $area->id }}" >{{ $area->area }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <input id="textArea" type="text" name="textArea" class="form-control my-3" placeholder="Область">
+                            <input type="hidden" name="type" value="area">
+                            <button class="btn" title="Добавить" type="submit"  formaction="{{ route('accountStore') }}">Добавить</button>
+                            <button class="btn edit-area" title="Редактировать" type="submit" onclick="$(this).parent().append('<input type=hidden name=_method value=put>')" formaction="">Редактировать</button>
+                            <button class="btn del-area" title="Удалить" type="submit" onclick="$(this).parent().append('<input type=hidden name=_method value=delete>')" formaction="">Удалить</button>
+                        </form>
+
+                        <form id="cities" method="post" class="my-5">
+                            {{ csrf_field() }}
+                            <div class="event-select-option">
+                                <select class="selectpicker" name="city" data-live-search="true">
+                                    <option data-icon="icon-Pointer" value="0">Город</option>
+                                    @foreach ($cities as $city)
+                                        <option data-icon="icon-Pointer" value="{{ $city->id }}" >{{ $city->city." (".$city->area->area.")" }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <input id="textCity" type="text" name="textCity" class="form-control my-3" placeholder="Город">
+                            <div class="event-select-option">
+                                <select class="selectpicker mb-4" name="parentArea" data-live-search="true">
+                                    <option data-icon="icon-Pointer" value="0">Область</option>
+                                    @foreach ($areas as $area)
+                                        <option data-icon="icon-Pointer" value="{{ $area->id }}" >{{ $area->area }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <input type="hidden" name="type" value="city">
+                            <button class="btn" title="Добавить" type="submit"  formaction="{{ route('accountStore') }}">Добавить</button>
+                            <button class="btn edit-city" title="Редактировать" type="submit" onclick="$(this).parent().append('<input type=hidden name=_method value=put>')" formaction="">Редактировать</button>
+                            <button class="btn del-city" title="Удалить" type="submit" onclick="$(this).parent().append('<input type=hidden name=_method value=delete>')" formaction="">Удалить</button>
+                        </form>
+
+                        <form id="venues" method="post" class="my-5">
+                            {{ csrf_field() }}
+                            <div class="event-select-option">
+                                <select class="selectpicker" name="venue" data-live-search="true">
+                                    <option data-icon="icon-Pointer" value="0">Улица</option>
+                                    @foreach ($venues as $venue)
+                                        <option data-icon="icon-Pointer" value="{{ $venue->id }}" >{{ $venue->street." (".$venue->city->area->area.", ".$venue->city->city.")" }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <input id="textVenue" type="text" name="textVenue" class="form-control my-3" placeholder="Улица">
+                            <div class="event-select-option">
+                                <select class="selectpicker mb-4" name="parentCity" data-live-search="true">
+                                    <option data-icon="icon-Pointer" value="0">Город</option>
+                                    @foreach ($cities as $city)
+                                        <option data-icon="icon-Pointer" value="{{ $city->id }}" >{{ $city->city." (".$city->area->area.")" }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <input type="hidden" name="type" value="venue">
+                            <button class="btn" title="Добавить" type="submit"  formaction="{{ route('accountStore') }}">Добавить</button>
+                            <button class="btn edit-venue" title="Редактировать" type="submit" onclick="$(this).parent().append('<input type=hidden name=_method value=put>')" formaction="">Редактировать</button>
+                            <button class="btn del-venue" title="Удалить" type="submit" onclick="$(this).parent().append('<input type=hidden name=_method value=delete>')" formaction="">Удалить</button>
+                        </form>
+
+                        <form id="event_venues" method="post" class="my-5">
+                            {{ csrf_field() }}
+                            <div class="event-select-option">
+                                <select class="selectpicker" name="event_venue" data-live-search="true">
+                                    <option data-icon="icon-Pointer" value="0">Место размещения</option>
+                                    @foreach ($event_venues as $venue)
+                                        <option data-icon="icon-Pointer" value="{{ $venue->id }}" >{{ $venue->venue->city->area->area.", ".$venue->venue->city->city.", ".$venue->venue->street." {".$venue->house."} (".$venue->description.")" }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <input id="textHouse" type="text" name="textHouse" class="form-control my-3" placeholder="Номер дома">
+                            <input id="textDescription" type="text" name="textDescription" class="form-control my-3" placeholder="Описание">
+                            <div class="event-select-option">
+                                <select class="selectpicker mb-4" name="parentVenue" data-live-search="true">
+                                    <option data-icon="icon-Pointer" value="0">Улица</option>
+                                    @foreach ($venues as $venue)
+                                        <option data-icon="icon-Pointer" value="{{ $venue->id }}" >{{ $venue->street." (".$venue->city->area->area.", ".$venue->city->city.")" }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <input type="hidden" name="type" value="event_venue">
+                            <button class="btn" title="Добавить" type="submit"  formaction="{{ route('accountStore') }}">Добавить</button>
+                            <button class="btn edit-event_venue" title="Редактировать" type="submit" onclick="$(this).parent().append('<input type=hidden name=_method value=put>')" formaction="">Редактировать</button>
+                            <button class="btn del-event_venue" title="Удалить" type="submit" onclick="$(this).parent().append('<input type=hidden name=_method value=delete>')" formaction="">Удалить</button>
+                        </form>
+
+                        <form id="ages" method="post" class="my-5">
+                            {{ csrf_field() }}
+                            <div class="event-select-option">
+                                <select class="selectpicker" name="age" data-live-search="true">
+                                    <option data-icon="icon-User" value="0">Возраст</option>
+                                    @foreach ($ages as $age)
+                                        <option data-icon="icon-User" value="{{ $age->id }}" >{{ $age->age }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <input id="textAge" type="text" name="textAge" class="form-control my-3" placeholder="Возраст">
+                            <input type="hidden" name="type" value="age">
+                            <button class="btn" title="Добавить" type="submit"  formaction="{{ route('accountStore') }}">Добавить</button>
+                            <button class="btn edit-age" title="Редактировать" type="submit" onclick="$(this).parent().append('<input type=hidden name=_method value=put>')" formaction="">Редактировать</button>
+                            <button class="btn del-age" title="Удалить" type="submit" onclick="$(this).parent().append('<input type=hidden name=_method value=delete>')" formaction="">Удалить</button>
+                        </form>
+
+                        <form id="roles" method="post" class="my-5">
+                            {{ csrf_field() }}
+                            <div class="event-select-option">
+                                <select class="selectpicker" name="role" data-live-search="true">
+                                    <option data-icon="icon-User" value="0">Роль</option>
+                                    @foreach ($roles as $role)
+                                        <option data-icon="icon-User" value="{{ $role->id }}" >{{ $role->role }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <input id="textRole" type="text" name="textRole" class="form-control my-3" placeholder="Роль">
+                            <input type="hidden" name="type" value="role">
+                            <button class="btn" title="Добавить" type="submit"  formaction="{{ route('accountStore') }}">Добавить</button>
+                            <button class="btn edit-role" title="Редактировать" type="submit" onclick="$(this).parent().append('<input type=hidden name=_method value=put>')" formaction="">Редактировать</button>
+                            <button class="btn del-role" title="Удалить" type="submit" onclick="$(this).parent().append('<input type=hidden name=_method value=delete>')" formaction="">Удалить</button>
+                        </form>
+
+                        <form id="actions" method="post" class="my-5">
+                            {{ csrf_field() }}
+                            <div class="event-select-option">
+                                <select class="selectpicker" name="action" data-live-search="true">
+                                    <option data-icon="icon-User" value="0">Действие</option>
+                                    @foreach ($actions as $action)
+                                        <option data-icon="icon-User" value="{{ $action->id }}" >{{ $action->action_ru." (".$action->action.")" }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <input id="textAction" type="text" name="textAction" class="form-control my-3" placeholder="Action">
+                            <input id="textActionRu" type="text" name="textActionRu" class="form-control my-3" placeholder="Действие">
+                            <input type="hidden" name="type" value="action">
+                            <button class="btn" title="Добавить" type="submit"  formaction="{{ route('accountStore') }}">Добавить</button>
+                            <button class="btn edit-action" title="Редактировать" type="submit" onclick="$(this).parent().append('<input type=hidden name=_method value=put>')" formaction="">Редактировать</button>
+                            <button class="btn del-action" title="Удалить" type="submit" onclick="$(this).parent().append('<input type=hidden name=_method value=delete>')" formaction="">Удалить</button>
+                        </form>
+
+                        <form id="permissions" method="post" class="my-5">
+                            {{ csrf_field() }}
+                            <div class="event-select-option">
+                                <select class="selectpicker" name="permission" data-live-search="true">
+                                    <option data-icon="icon-User" value="0">Разрешения</option>
+                                    @foreach ($permissions as $permission)
+                                        <option data-icon="icon-User" value="{{ $permission->id }}" >{{ $permission->role->role."{".$permission->role_id."} -> ".$permission->action->action_ru." (".$permission->action->action.")" }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="event-select-option my-3">
+                                <select class="selectpicker" name="parentAction" data-live-search="true">
+                                    <option data-icon="icon-User" value="0">Действие</option>
+                                    @foreach ($actions as $action)
+                                        <option data-icon="icon-User" value="{{ $action->action }}" >{{ $action->action_ru." (".$action->action.")" }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="event-select-option mb-3">
+                                <select class="selectpicker" name="parentRole" data-live-search="true">
+                                    <option data-icon="icon-User" value="0">Роль</option>
+                                    @foreach ($roles as $role)
+                                        <option data-icon="icon-User" value="{{ $role->id }}" >{{ $role->role }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <input type="hidden" name="type" value="permission">
+                            <button class="btn" title="Добавить" type="submit"  formaction="{{ route('accountStore') }}">Добавить</button>
+                            <button class="btn edit-permission" title="Редактировать" type="submit" onclick="$(this).parent().append('<input type=hidden name=_method value=put>')" formaction="">Редактировать</button>
+                            <button class="btn del-permission" title="Удалить" type="submit" onclick="$(this).parent().append('<input type=hidden name=_method value=delete>')" formaction="">Удалить</button>
+                        </form>
+
+                        <form id="users" method="post" class="my-5">
+                            {{ csrf_field() }}
+                            <div class="event-select-option">
+                                <select class="selectpicker" name="user" data-live-search="true">
+                                    <option data-icon="icon-User" value="0">Пользователь</option>
+                                    @foreach ($users as $user)
+                                        <option data-icon="icon-User" value="{{ $user->id }}" >{{ $user->username." (".$user->role->role."){".$user->role_id."}" }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="event-select-option mb-3">
+                                <select class="selectpicker" name="parentRoleUser" data-live-search="true">
+                                    <option data-icon="icon-User" value="0">Роль</option>
+                                    @foreach ($roles as $role)
+                                        <option data-icon="icon-User" value="{{ $role->id }}" >{{ $role->role }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <input type="hidden" name="type" value="user">
+                            <button class="btn edit-user" title="Редактировать" type="submit" onclick="$(this).parent().append('<input type=hidden name=_method value=put>')" formaction="">Редактировать</button>
+                        </form>
+
+                        <div class="section-padding"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@section('scripts')
+    <script>
+        $('select[name=user]').change(function (e) {
+            $('select[name=parentRoleUser] option:selected').removeProp('selected');
+            $('select').selectpicker('refresh');
+
+            $('select[name=parentRoleUser] option[value=' + $("select[name=user] option:selected").text().split('{')[1].split('}')[0] + ']').prop('selected', 'selected');
+            $('select').selectpicker('refresh');
+
+            $('button.edit-user').attr('formaction', '/admin/' + $("select[name=user] option:selected").val());
+        });
+
+        $('select[name=permission]').change(function (e) {
+            $('select[name=parentRole] option:selected').removeProp('selected');
+            $('select[name=parentAction] option:selected').removeProp('selected');
+            $('select').selectpicker('refresh');
+
+            $('select[name=parentRole] option[value=' + $("select[name=permission] option:selected").text().split('{')[1].split('}')[0] + ']').prop('selected', 'selected');
+            $('select[name=parentAction] option[value=' + $("select[name=permission] option:selected").text().split('(')[1].split(')')[0] + ']').prop('selected', 'selected');
+            $('select').selectpicker('refresh');
+
+            $('button.edit-permission').attr('formaction', '/admin/' + $("select[name=permission] option:selected").val());
+            $('button.del-permission').attr('formaction', '/admin/' + $("select[name=permission] option:selected").val());
+        });
+
+        $('select[name=action]').change(function (e) {
+            $('#textActionRu').val($("select[name=action] option:selected").text().split('(')[0]);
+            $('#textAction').val($("select[name=action] option:selected").text().split('(')[1].split(')')[0]);
+            $('button.edit-action').attr('formaction', '/admin/' + $("select[name=action] option:selected").val());
+            $('button.del-action').attr('formaction', '/admin/' + $("select[name=action] option:selected").val());
+        });
+
+        $('select[name=role]').change(function (e) {
+            $('#textRole').val($("select[name=role] option:selected").text());
+            $('button.edit-role').attr('formaction', '/admin/' + $("select[name=role] option:selected").val());
+            $('button.del-role').attr('formaction', '/admin/' + $("select[name=role] option:selected").val());
+        });
+
+        $('select[name=age]').change(function (e) {
+            $('#textAge').val($("select[name=age] option:selected").text());
+            $('button.edit-age').attr('formaction', '/admin/' + $("select[name=age] option:selected").val());
+            $('button.del-age').attr('formaction', '/admin/' + $("select[name=age] option:selected").val());
+        });
+
+        $('select[name=area]').change(function (e) {
+            $('#textArea').val($("select[name=area] option:selected").text());
+            $('button.edit-area').attr('formaction', '/admin/' + $("select[name=area] option:selected").val());
+            $('button.del-area').attr('formaction', '/admin/' + $("select[name=area] option:selected").val());
+        });
+
+        $('select[name=category]').change(function (e) {
+            $('#textCategory').val($("select[name=category] option:selected").text());
+            $('button.edit-cat').attr('formaction', '/category/' + $("select[name=category] option:selected").val());
+            $('button.del-cat').attr('formaction', '/category/' + $("select[name=category] option:selected").val());
+            $('select[name=parentCategory] option:selected').removeProp('selected');
+            $('select').selectpicker('refresh');
+            $.ajax({
+                type: "POST",
+                beforeSend: function(request) {
+                    request.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
+                },
+                url: "/category/load_data",
+                data: "type=category&alias=" + $("select[name=category] option:selected").val(),
+                processData: false,
+                success: function(msg) {
+                    if (msg.length != 0)
+                    {
+                        $('select[name=parentCategory] option[value=' + msg + ']').prop('selected', 'selected');
+                        $('select').selectpicker('refresh');
+                    }
+                }
+            });
+        });
+
+        $('select[name=city]').change(function (e) {
+            $('#textCity').val($("select[name=city] option:selected").text().split('(')[0]);
+            $('button.edit-city').attr('formaction', '/admin/' + $("select[name=city] option:selected").val());
+            $('button.del-city').attr('formaction', '/admin/' + $("select[name=city] option:selected").val());
+            $('select[name=parentArea] option:selected').removeProp('selected');
+            $('select').selectpicker('refresh');
+            $.ajax({
+                type: "POST",
+                beforeSend: function(request) {
+                    request.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
+                },
+                url: "/category/load_data",
+                data: "type=city&id=" + $("select[name=city] option:selected").val(),
+                processData: false,
+                success: function(msg) {
+                    if (msg.length != 0)
+                    {
+                        $('select[name=parentArea] option[value=' + msg + ']').prop('selected', 'selected');
+                        $('select').selectpicker('refresh');
+                    }
+                }
+            });
+        });
+
+        $('select[name=venue]').change(function (e) {
+            $('#textVenue').val($("select[name=venue] option:selected").text().split('(')[0]);
+            $('button.edit-venue').attr('formaction', '/admin/' + $("select[name=venue] option:selected").val());
+            $('button.del-venue').attr('formaction', '/admin/' + $("select[name=venue] option:selected").val());
+            $('select[name=parentCity] option:selected').removeProp('selected');
+            $('select').selectpicker('refresh');
+            $.ajax({
+                type: "POST",
+                beforeSend: function(request) {
+                    request.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
+                },
+                url: "/category/load_data",
+                data: "type=venue&id=" + $("select[name=venue] option:selected").val(),
+                processData: false,
+                success: function(msg) {
+                    if (msg.length != 0)
+                    {
+                        $('select[name=parentCity] option[value=' + msg + ']').prop('selected', 'selected');
+                        $('select').selectpicker('refresh');
+                    }
+                }
+            });
+        });
+
+        $('select[name=event_venue]').change(function (e) {
+            $('#textHouse').val($("select[name=event_venue] option:selected").text().split('{')[1].split('}')[0]);
+            $('#textDescription').val($("select[name=event_venue] option:selected").text().split('(')[1].split(')')[0]);
+            $('button.edit-event_venue').attr('formaction', '/admin/' + $("select[name=event_venue] option:selected").val());
+            $('button.del-event_venue').attr('formaction', '/admin/' + $("select[name=event_venue] option:selected").val());
+            $('select[name=parentVenue] option:selected').removeProp('selected');
+            $('select').selectpicker('refresh');
+            $.ajax({
+                type: "POST",
+                beforeSend: function(request) {
+                    request.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
+                },
+                url: "/category/load_data",
+                data: "type=event_venue&id=" + $("select[name=event_venue] option:selected").val(),
+                processData: false,
+                success: function(msg) {
+                    if (msg.length != 0)
+                    {
+                        $('select[name=parentVenue] option[value=' + msg + ']').prop('selected', 'selected');
+                        $('select').selectpicker('refresh');
+                    }
+                }
+            });
+        });
+    </script>
+@endsection
