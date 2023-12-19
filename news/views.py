@@ -125,7 +125,7 @@ def addComment(request):
 
     return HttpResponseRedirect(reverse('news:show', kwargs={'alias': request.POST.get('alias')}))
 
-@api_view(['GET'])
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def deleteComment(request, id=0):
     try:
