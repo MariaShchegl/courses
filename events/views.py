@@ -296,6 +296,7 @@ def loadData(request):
 
     return HttpResponse(res, content_type='application/json')
 
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def addComment(request):
     try:
@@ -330,6 +331,7 @@ def addComment(request):
     else:
         return HttpResponseRedirect(reverse('events:index'))
 
+@api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def deleteComment(request, id=0):
     try:
@@ -571,7 +573,7 @@ def editEvent(request, alias=''):
 
                 if price and venue:
                     article.age_id = form.data['age']
-                    article.venue = venue
+                    article.venue.add(venue)
                     article.value = value
                     article.price = price
                     article.title = form.data['title']
@@ -634,7 +636,7 @@ def editEvent(request, alias=''):
 
                 if price and venue:
                     article.age_id = form.data['age']
-                    article.venue = venue
+                    article.venue.add(venue)
                     article.value = value
                     article.price = price
                     article.title = form.data['title']
