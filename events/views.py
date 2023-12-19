@@ -550,7 +550,8 @@ def editEvent(request, alias=''):
 
                 list_soc = []
                 for ind, item in enumerate(request.POST.getlist('socials_val')):
-                    list_soc.append({request.POST.getlist('socials_type')[ind]: item})
+                    if item:
+                        list_soc.append({request.POST.getlist('socials_type')[ind]: item})
                 value = {"social_links": list_soc, "venues": json.loads(request.POST.get('hidden-block'))}
 
                 if request.POST.get('event_venues'):
@@ -620,7 +621,8 @@ def editEvent(request, alias=''):
 
                 list_soc = []
                 for ind, item in enumerate(request.POST.getlist('socials_val')):
-                    list_soc.append({request.POST.getlist('socials_type')[ind]: item})
+                    if item:
+                        list_soc.append({request.POST.getlist('socials_type')[ind]: item})
                 value = {"social_links": list_soc}
 
                 if request.POST.get('event_venues'):
