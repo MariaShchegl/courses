@@ -434,13 +434,14 @@ def addEvent(request, type=''):
 
                 if price and venue:
                     event = Event.objects.create(age_id=form.data['age'], user=request.user, type_event_id=1,
-                                                 venue=venue, value=value, price=price, title=form.data['title'],
+                                                 value=value, price=price, title=form.data['title'],
                                                  description=form.data['description'],
                                                  meta_title=form.data['meta_title'],
                                                  meta_keywords=form.data['meta_keywords'],
                                                  meta_description=form.data['meta_description'],
                                                  main_photo=request.FILES.get('main_photo'),
                                                  contacts=form.data['contacts'], alias=alias, is_show=is_show, start_event=start_event)
+                    event.venue.add(venue)
 
                     for category_id in request.POST.getlist('categories'):
                         category = Category.objects.filter(id=category_id).first()
